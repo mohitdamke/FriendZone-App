@@ -157,7 +157,7 @@ private fun OutlineText(
     label: String
 ) {
     OutlinedTextField(
-        value = value.trim(),
+        value = value,
         onValueChange = { onValueChange(it) },
         singleLine = true, leadingIcon = {
             Icon(
