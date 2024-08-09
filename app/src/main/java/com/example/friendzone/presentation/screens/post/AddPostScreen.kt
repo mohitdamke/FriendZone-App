@@ -1,4 +1,4 @@
-package com.example.friendzone.presentation.screens.addPost
+package com.example.friendzone.presentation.screens.post
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

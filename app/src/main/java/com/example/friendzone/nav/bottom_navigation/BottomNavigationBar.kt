@@ -1,4 +1,4 @@
-package com.example.friendzone.navigation
+package com.example.friendzone.nav.bottom_navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.friendzone.nav.routes.MainRouteScreen
 
 @Composable
 fun BottomNavigationBar(
@@ -65,7 +66,7 @@ fun BottomNavigationBar(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     unselectedTextColor = Gray,
-                    selectedTextColor = Black,
+                    selectedTextColor = White,
                     selectedIconColor = Black,
                     unselectedIconColor = Black,
                     indicatorColor = White
@@ -78,9 +79,11 @@ fun BottomNavigationBar(
 
 
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Home : BottomNavItem(Routes.Home.routes, Icons.Default.Home, "Home")
-    object Search : BottomNavItem(Routes.Search.routes, Icons.Default.Search, "Search")
-    object AddPost : BottomNavItem(Routes.AddPost.routes, Icons.Default.AddCircle, "Add Post")
-    object ChatPeople : BottomNavItem(Routes.AllChat.routes, Icons.Default.Chat, "Chat")
-    object Profile : BottomNavItem(Routes.Profile.routes, Icons.Default.Person, "Profile")
+    object Home : BottomNavItem(MainRouteScreen.Home.route, Icons.Default.Home, "Home")
+    object Search : BottomNavItem(MainRouteScreen.Search.route, Icons.Default.Search, "Search")
+    object AddPost :
+        BottomNavItem(MainRouteScreen.AddPost.route, Icons.Default.AddCircle, "Add Post")
+
+    object ChatPeople : BottomNavItem(MainRouteScreen.Chat.route, Icons.Default.Chat, "Chat")
+    object Profile : BottomNavItem(MainRouteScreen.Profile.route, Icons.Default.Person, "Profile")
 }

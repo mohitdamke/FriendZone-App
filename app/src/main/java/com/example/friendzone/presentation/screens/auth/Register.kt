@@ -58,17 +58,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.R
-import com.example.friendzone.navigation.Routes
+import com.example.friendzone.nav.routes.AuthRouteScreen
+import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.viewmodel.auth.SignUpViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun Register(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    navController: NavController,
     viewModel: SignUpViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
@@ -239,11 +240,7 @@ fun Register(
                     }
                 }
                 Button(onClick = {
-                    navController.navigate(Routes.Login.routes) {
-                        popUpTo(Routes.Register.routes) {
-                            inclusive = true
-                        }
-                    }
+                    navController.navigate(AuthRouteScreen.Login.route)
                 }, modifier = Modifier.fillMaxWidth()) {
                     Text(text = "Login")
                 }
@@ -256,7 +253,11 @@ fun Register(
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "You have successfully registered", Toast.LENGTH_SHORT)
                     .show()
-                navController.navigate(Routes.Login.routes)
+                navController.navigate(Graph.MainScreenGraph){
+                    popUpTo(Graph.AuthGraph){
+                        inclusive = true
+                    }
+                }
             }
         }
     }

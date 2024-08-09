@@ -1,4 +1,4 @@
-package com.example.friendzone.presentation.screens
+package com.example.friendzone.presentation.screens.splash
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -9,18 +9,17 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 import com.example.friendzone.R
-import com.example.friendzone.navigation.Routes
+import com.example.friendzone.nav.routes.Graph
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 
 @Composable
-fun Splash(
+fun SplashScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavController,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
@@ -34,17 +33,16 @@ fun Splash(
         delay(1000)
 
         if (FirebaseAuth.getInstance().currentUser == null) {
-            navController.navigate(Routes.Login.routes) {
-                popUpTo(Routes.Splash.routes) {
+            navController.navigate(Graph.AuthGraph){
+                popUpTo(Graph.SplashGraph){
                     inclusive = true
                 }
             }
         } else {
-            navController.navigate(Routes.MainScreen.routes) {
-                popUpTo(Routes.Splash.routes) {
+            navController.navigate(Graph.MainScreenGraph){
+                popUpTo(Graph.SplashGraph){
                     inclusive = true
                 }
-
             }
         }
     }

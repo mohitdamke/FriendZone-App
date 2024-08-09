@@ -38,16 +38,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.example.friendzone.navigation.BottomNavItem
-import com.example.friendzone.navigation.Routes
+import androidx.navigation.NavController
+import com.example.friendzone.nav.routes.AuthRouteScreen
+import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.viewmodel.auth.SignInViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun Login(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
+    navController: NavController,
     viewModel: SignInViewModel = hiltViewModel()
 ) {
 
@@ -114,7 +114,7 @@ fun Login(
         Spacer(modifier = Modifier.padding(top = 30.dp))
 
         Button(onClick = {
-            navController.navigate(Routes.Register.routes)
+            navController.navigate(AuthRouteScreen.Register.route)
         }, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Register")
         }
@@ -126,7 +126,11 @@ fun Login(
                 val success = state.value?.isSuccess
                 Toast.makeText(context, "You have successfully login", Toast.LENGTH_SHORT)
                     .show()
-                navController.navigate(Routes.MainScreen.routes)
+                navController.navigate(Graph.MainScreenGraph){
+                    popUpTo(Graph.AuthGraph){
+                        inclusive = true
+                    }
+                }
             }
         }
     }
