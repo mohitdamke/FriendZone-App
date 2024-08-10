@@ -1,7 +1,6 @@
 package com.example.friendzone.nav.graph
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,7 +9,7 @@ import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.presentation.nav_main.MainScreen
 
 @Composable
-fun RootNavGraph(modifier: Modifier = Modifier) {
+fun RootNavGraph() {
     val rootNavController: NavHostController = rememberNavController()
 
     NavHost(
@@ -22,10 +21,14 @@ fun RootNavGraph(modifier: Modifier = Modifier) {
 
         authNavGraph(rootNavController = rootNavController)
 
-        composable(route = Graph.MainScreenGraph){
+        composable(route = Graph.MainScreenGraph) {
             MainScreen(rootNavController = rootNavController)
         }
 
         homeNavGraph(rootNavController = rootNavController)
+        searchNavGraph(rootNavController = rootNavController)
+//        addPostNavGraph(rootNavController = rootNavController)
+        chatNavGraph(rootNavController = rootNavController)
+        profileNavGraph(rootNavController = rootNavController)
     }
 }

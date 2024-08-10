@@ -1,4 +1,4 @@
-package com.example.friendzone.domain.auth.state
+package com.example.friendzone.domain.auth.state.auth
 
 data class SignUpState(
     val isLoading: Boolean = false,

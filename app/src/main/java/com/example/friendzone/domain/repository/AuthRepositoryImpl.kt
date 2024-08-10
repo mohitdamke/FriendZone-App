@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.friendzone.data.model.UserModel
-import com.example.friendzone.presentation.repository.AuthRepository
+import com.example.friendzone.presentation.repository.auth.AuthRepository
 import com.example.friendzone.util.Resource
 import com.example.friendzone.util.SharedPref
 import com.google.firebase.auth.AuthResult

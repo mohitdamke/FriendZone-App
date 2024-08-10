@@ -2,8 +2,8 @@ package com.example.friendzone.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.friendzone.domain.auth.state.SignOutState
-import com.example.friendzone.presentation.repository.AuthRepository
+import com.example.friendzone.domain.auth.state.auth.SignOutState
+import com.example.friendzone.presentation.repository.auth.AuthRepository
 import com.example.friendzone.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel

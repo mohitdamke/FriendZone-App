@@ -108,17 +108,6 @@ fun Register(
 
     }
 
-//    LaunchedEffect(firebaseUser) {
-//        if (firebaseUser != null) {
-//            navController.navigate(Routes.BottomNav.routes) {
-//                popUpTo(Routes.Register.routes) {
-//                    inclusive = true
-//                }
-//            }
-//        }
-//    }
-
-
     Column(
         modifier = modifier
             .fillMaxSize()

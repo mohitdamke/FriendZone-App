@@ -1,7 +1,7 @@
 package com.example.friendzone.di
 
 import com.example.friendzone.domain.repository.AuthRepositoryImpl
-import com.example.friendzone.presentation.repository.AuthRepository
+import com.example.friendzone.presentation.repository.auth.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore

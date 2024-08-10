@@ -1,4 +1,4 @@
-package com.example.friendzone.presentation.repository
+package com.example.friendzone.presentation.repository.auth
 
 import android.content.Context
 import android.net.Uri

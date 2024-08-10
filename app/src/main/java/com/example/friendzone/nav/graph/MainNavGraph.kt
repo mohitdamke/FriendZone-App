@@ -31,19 +31,19 @@ fun MainNavGraph(
         }
 
         composable(route = MainRouteScreen.Search.route){
-            SearchScreen()
+            SearchScreen(navController = rootNavController)
         }
 
         composable(route = MainRouteScreen.AddPost.route){
-            AddPostScreen()
+            AddPostScreen(navController = homeNavController)
         }
 
         composable(route = MainRouteScreen.Chat.route){
-            ChatScreen()
+            ChatScreen(navController = rootNavController)
         }
 
         composable(route = MainRouteScreen.Profile.route){
-            ProfileScreen()
+            ProfileScreen(navController = rootNavController)
         }
     }
 }
