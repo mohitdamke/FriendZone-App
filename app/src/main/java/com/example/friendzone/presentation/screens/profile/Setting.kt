@@ -12,8 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,22 +27,15 @@ import com.example.friendzone.nav.routes.MainRouteScreen
 import com.example.friendzone.nav.routes.ProfileRouteScreen
 import com.example.friendzone.ui.theme.Blue40
 import com.example.friendzone.viewmodel.auth.AuthViewModel
-import com.example.friendzone.viewmodel.home.HomeViewModel
-import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @Composable
 fun Setting(modifier: Modifier = Modifier, navController: NavController) {
     val authViewModel: AuthViewModel = viewModel()
-    val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
-    val homeViewModel: HomeViewModel = viewModel()
-
-    val userViewModel: UserViewModel = viewModel()
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-    if (firebaseUser != null) userViewModel.fetchPosts(firebaseUser!!.uid)
 
     var currentUserId = ""
     if (FirebaseAuth.getInstance().currentUser != null) currentUserId =

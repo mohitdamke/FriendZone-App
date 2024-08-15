@@ -80,8 +80,15 @@ fun ProfileScreen(
     val followingList by userViewModel.followingList.observeAsState(null)
     val scope = rememberCoroutineScope()
 
-    if (firebaseUser != null) userViewModel.fetchPosts(firebaseUser!!.uid)
+    LaunchedEffect(key1 = firebaseUser) {
+        Log.d("TAG", "ProfileScreen: Data Fetch ")
+        if (firebaseUser != null) userViewModel.fetchPosts(firebaseUser!!.uid)
+        userViewModel.getFollowers(firebaseUser!!.uid)
+        userViewModel.getFollowing(firebaseUser!!.uid)
+        homeViewModel.fetchSavedPost(firebaseUser!!.uid)
 
+        Log.d("TAG", "ProfileScreen: Data Fetch ")
+    }
     var currentUserId = ""
     if (FirebaseAuth.getInstance().currentUser != null) currentUserId =
         FirebaseAuth.getInstance().currentUser!!.uid

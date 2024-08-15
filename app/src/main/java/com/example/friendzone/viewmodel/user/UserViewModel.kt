@@ -170,51 +170,60 @@ class UserViewModel : ViewModel() {
 //            }
 //        })
 //    }
+//    fun fetchPosts(uid: String) {
+//        Log.d("TAG", "VIEWMODEL fetchPosts: postsFetched=$postsFetched")
+//
+//        if (postsFetched) {
+//            Log.d("TAG", "VIEWMODEL fetchPosts: Already fetched, skipping")
+//            return  // Exit early if posts have already been fetched
+//        }
+//
+//        postsFetched = true  // Set the flag immediately to prevent re-fetching during ongoing fetch
+//        Log.d("TAG", "VIEWMODEL fetchPosts: 2")
+//
+//        _posts.postValue(emptyList())  // Optionally clear old posts
+//        Log.d("TAG", "VIEWMODEL fetchPosts: 3")
+//
+//        postRef.orderByChild("userId").equalTo(uid)
+//            .addListenerForSingleValueEvent(object : ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    val postList = snapshot.children.mapNotNull {
+//                        it.getValue(PostModel::class.java)
+//                    }.toSet().toList()  // Ensure uniqueness if needed
+//
+//                    _posts.postValue(postList)
+//                    Log.d("TAG", "VIEWMODEL fetchPosts: Data fetched successfully")
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    Log.d("TAG", "VIEWMODEL fetchPosts: ERROR")
+//                    postsFetched = false  // Reset if there was an error
+//                }
+//
+//            }
+//            )
+//
+//        Log.d("TAG", "VIEWMODEL fetchPosts: 4")
+//    }
+//
+
+
     fun fetchPosts(uid: String) {
-        if (postsFetched) {
-            Log.d("UserViewModel", "fetchPosts: Posts already fetched, skipping.")
-            return
-        }
-
-        // Set the flag immediately to prevent re-fetching during ongoing fetch
-        postsFetched = true
-        Log.d("UserViewModel", "fetchPosts: Fetching posts for uid: $uid")
-
-        _posts.postValue(emptyList())  // Optionally clear old posts
+        if (postsFetched) return
         postRef.orderByChild("userId").equalTo(uid)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val postList = snapshot.children.mapNotNull {
-                        it.getValue(PostModel::class.java)
+                    val postList = snapshot.children.mapNotNull { data ->
+                        data.getValue(PostModel::class.java)
                     }
                     _posts.postValue(postList)
-                    Log.d("UserViewModel", "fetchPosts: Posts fetched successfully.")
+                    postsFetched = true
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("UserViewModel", "fetchPosts: Failed to fetch posts: ${error.message}")
-                    // Reset the flag in case of an error to allow re-attempt
-                    postsFetched = false
                 }
             })
     }
-
-
-//    fun fetchPosts(uid: String) {
-//        if (postsFetched) return
-//        postRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val postList = snapshot.children.mapNotNull {
-//                    it.getValue(PostModel::class.java)
-//                }
-//                _posts.postValue(postList)
-//                postsFetched = true
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//            }
-//        })
-//    }
 
     fun fetchStory(uid: String) {
         if (storyFetched) return

@@ -16,14 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.friendzone.R
 import com.example.friendzone.nav.routes.Graph
+import com.example.friendzone.ui.theme.Blue40
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun SplashScreen(
@@ -35,13 +39,18 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.friendzone),
-            contentDescription = null,
-            modifier = modifier
-                .size(200.dp),
-            contentScale = ContentScale.Crop
+        Text(
+            text = "FZ",
+            fontSize = 100.sp,
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Italic ,
+            color = Blue40
         )
+        Text(text = "FriendZone",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Normal ,
+            color = Blue40, letterSpacing = 10.sp)
     }
     LaunchedEffect(key1 = true) {
         delay(1000)

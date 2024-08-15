@@ -8,18 +8,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,11 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -43,9 +38,10 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.PostItem
 import com.example.friendzone.common.UsersStoryHomeItem
+import com.example.friendzone.data.model.PostModel
+import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.ui.theme.Blue40
-import com.example.friendzone.ui.theme.PurpleGrey80
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.search.SearchViewModel
@@ -70,18 +66,17 @@ fun HomeScreen(
 
     val context = LocalContext.current
 
-    val postAndUsers by homeViewModel.postsAndUsers.observeAsState(emptyList())
+    val postAndUsers: List<Pair<PostModel, UserModel>> by homeViewModel.postsAndUsers.observeAsState(
+        emptyList()
+    )
     val storyAndUsers by storyViewModel.storyAndUsers.observeAsState(null)
 
 
 
 
     LaunchedEffect(key1 = Unit) {
-
-        homeViewModel.postsAndUsers
         userViewModel.fetchUsers(uid = currentUserId)
         searchViewModel.fetchUsersExcludingCurrentUser(currentUserId)
-
     }
     Scaffold(modifier = modifier) { paddingValues ->
         LazyColumn(
@@ -179,7 +174,7 @@ fun HomeScreen(
                     }
                 }
 
-                this@LazyColumn.items(postAndUsers) { pairs ->
+                this@LazyColumn.items(postAndUsers?: emptyList()) { pairs ->
                     PostItem(
                         post = pairs.first,
                         users = pairs.second,

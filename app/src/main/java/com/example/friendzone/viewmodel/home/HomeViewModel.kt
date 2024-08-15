@@ -51,12 +51,17 @@ class HomeViewModel() : ViewModel() {
 //    }
 
 
+    init {
+
+        fetchPostsAndUsers { it ->
+            _postsAndUsers.value = it
+        }
+        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+        fetchSavedPost(currentUserId)
+    }
 
 
-
-
-
-    private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
+   private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
 
         postRef.addListenerForSingleValueEvent(object : ValueEventListener {
 
@@ -65,15 +70,13 @@ class HomeViewModel() : ViewModel() {
                 val result = mutableListOf<Pair<PostModel, UserModel>>()
                 for (postSnapshot in snapshot.children) {
 
-                    val post = postSnapshot.getValue(PostModel::class.java)
+                    val post: PostModel? = postSnapshot.getValue(PostModel::class.java)
                     post?.let {
                         fetchUserFromPost(it) { user ->
-                            result.add(it to user)
-
+                            result.add(index = 0, element = Pair(it, user))
                             if (result.size == snapshot.childrenCount.toInt()) {
                                 onResult(result)
                             }
-
                         }
                     }
                 }
@@ -89,9 +92,9 @@ class HomeViewModel() : ViewModel() {
         db.getReference("users").child(post.userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val user = snapshot.getValue(UserModel::class.java)
-//                    user?.let(onResult)
-                    user?.let { onResult(it) }
+                    val user : UserModel? = snapshot.getValue(UserModel::class.java)
+                    user?.let(onResult)
+//                    user?.let { onResult(it) }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -113,7 +116,6 @@ class HomeViewModel() : ViewModel() {
             }
         }
     }
-
 
 
     fun addComment(
