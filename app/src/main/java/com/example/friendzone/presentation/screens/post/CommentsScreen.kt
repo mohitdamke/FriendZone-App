@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.friendzone.data.model.CommentModel
+import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +35,10 @@ fun CommentsScreen(
     }
     Column(modifier = Modifier.fillMaxSize()) {
 
-        Comments(comments = comments) { commentText ->
+        Comments(
+            comments = comments,
+
+        ) { commentText ->
             val newComment = CommentModel(
                 userId = FirebaseAuth.getInstance().currentUser!!.uid,
                 text = commentText

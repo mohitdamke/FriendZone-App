@@ -2,6 +2,7 @@ package com.example.friendzone.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Preview
@@ -16,7 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -43,27 +44,27 @@ fun OutlineText(
             Icon(
                 imageVector = icons,
                 contentDescription = "",
-                modifier = Modifier.padding(10.dp), tint = Gray
+                modifier = Modifier.padding(10.dp), tint = Black
             )
         },
         label = {
             Text(
                 text = "Type your $label", fontSize = 16.sp,
-                fontWeight = FontWeight.W600, color = Gray,
+                fontWeight = FontWeight.W600, color = Black,
                 fontFamily = FontFamily.SansSerif, maxLines = 1
             )
         },
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Gray,
-            unfocusedBorderColor = Gray,
-            focusedTextColor = Gray,
-            unfocusedTextColor = Gray
+            focusedBorderColor = Black,
+            unfocusedBorderColor = Black,
+            focusedTextColor = Black,
+            unfocusedTextColor = Black
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Next
         ),
-        modifier = modifier.fillMaxWidth(), minLines = 1
+        modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), minLines = 1
     )
 }
 

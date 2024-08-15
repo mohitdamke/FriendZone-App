@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -40,7 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -49,12 +50,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.friendzone.geminiAi.domain.ChatUiEvent
 import com.example.friendzone.geminiAi.viewmodel.AiChatViewModel
+import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.Blue80
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -89,15 +91,6 @@ fun AiChatScreen(
             // Handle permission denial (e.g., show a message)
         }
     }
-
-//    LaunchedEffect(Unit) {
-//        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            Manifest.permission.READ_MEDIA_IMAGES
-//        } else {
-//            Manifest.permission.READ_EXTERNAL_STORAGE
-//        }
-//        permissionLauncher.launch(permission)
-//    }
 
 
 
@@ -157,7 +150,7 @@ fun AiChatScreen(
                                     Manifest.permission.READ_EXTERNAL_STORAGE
                                 }
                             permissionLauncher.launch(permission)
-                                   },
+                        },
                     imageVector = Icons.Rounded.AddPhotoAlternate,
                     contentDescription = "Add Photo",
                     tint = MaterialTheme.colorScheme.primary
@@ -166,11 +159,15 @@ fun AiChatScreen(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            TextField(modifier = Modifier.weight(1f), value = chatState.prompt, onValueChange = {
-                chaViewModel.onEvent(ChatUiEvent.UpdatePrompt(it))
-            }, placeholder = {
-                Text(text = "Type a prompt")
-            })
+            OutlinedTextField(
+                modifier = Modifier.weight(1f), shape = RoundedCornerShape(20.dp),
+                value = chatState.prompt,
+                onValueChange = {
+                    chaViewModel.onEvent(ChatUiEvent.UpdatePrompt(it))
+                },
+                placeholder = {
+                    Text(text = "Type a prompt")
+                })
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -215,11 +212,11 @@ fun UserChatItem(prompt: String, bitmap: Bitmap?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(Blue40)
                 .padding(16.dp),
             text = prompt,
             fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = Black
         )
 
     }
@@ -234,11 +231,11 @@ fun ModelChatItem(response: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(Red)
+                .background(Blue80)
                 .padding(16.dp),
             text = response,
             fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = Black
         )
     }
 }

@@ -15,7 +15,6 @@ import com.example.friendzone.presentation.screens.search.SearchScreen
 
 @Composable
 fun MainNavGraph(
-    modifier: Modifier = Modifier,
     rootNavController: NavHostController,
     homeNavController: NavHostController
 ) {

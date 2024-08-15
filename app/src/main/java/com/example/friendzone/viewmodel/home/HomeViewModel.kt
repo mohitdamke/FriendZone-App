@@ -14,11 +14,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class HomeViewModel(): ViewModel() {
+class HomeViewModel() : ViewModel() {
 
 
     private val db = FirebaseDatabase.getInstance()
-    val post = db.getReference("posts")
+    private val postRef = db.getReference("posts")
 
     private var _postsAndUsers = MutableLiveData<List<Pair<PostModel, UserModel>>>()
     val postsAndUsers: LiveData<List<Pair<PostModel, UserModel>>> = _postsAndUsers
@@ -29,30 +29,46 @@ class HomeViewModel(): ViewModel() {
     private val _savedPostIds = MutableLiveData<List<String>>()
     val savedPostIds: LiveData<List<String>> = _savedPostIds
 
+    private var postsMap = mutableMapOf<String, Pair<PostModel, UserModel>>()
 
-    init {
-        fetchPostsAndUsers {
-            _postsAndUsers.value = it
-        }
-        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        fetchSavedPost(currentUserId)
+    private var _hasMoreData = MutableLiveData(true)
+    val hasMoreData: LiveData<Boolean> = _hasMoreData
 
-    }
+    private var _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private var lastFetchedKey: String? = null
+
+    private val DEFAULT_PAGE_SIZE = 10 // Define the number of posts to fetch initially
+
+//    init {
+//        fetchPostsAndUsers {
+//            _postsAndUsers.value = it
+//        }
+//        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+//        fetchSavedPost(currentUserId)
+//
+//    }
+
+
+
+
+
+
 
     private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
 
-        post.addValueEventListener(object : ValueEventListener {
+        postRef.addListenerForSingleValueEvent(object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 val result = mutableListOf<Pair<PostModel, UserModel>>()
-
                 for (postSnapshot in snapshot.children) {
 
                     val post = postSnapshot.getValue(PostModel::class.java)
-                    post.let {
-                        fetchUserFromPost(it!!) { user ->
-                            result.add(0, it to user)
+                    post?.let {
+                        fetchUserFromPost(it) { user ->
+                            result.add(it to user)
 
                             if (result.size == snapshot.childrenCount.toInt()) {
                                 onResult(result)
@@ -74,7 +90,8 @@ class HomeViewModel(): ViewModel() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val user = snapshot.getValue(UserModel::class.java)
-                    user?.let(onResult)
+//                    user?.let(onResult)
+                    user?.let { onResult(it) }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -84,24 +101,19 @@ class HomeViewModel(): ViewModel() {
     }
 
     fun toggleLike(postId: String, userId: String) {
-        val postRef = FirebaseDatabase.getInstance().getReference("posts").child(postId)
-        postRef.child("likes").child(userId)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        // User has already liked, remove the like
-                        postRef.child("likes").child(userId).removeValue()
-                    } else {
-                        // User has not liked, add the like
-                        postRef.child("likes").child(userId).setValue(true)
-                    }
-                }
+        val postRef = postRef.child(postId)
 
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle error
-                }
-            })
+        postRef.child("likes").child(userId).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                // If the user has already liked the post, remove the like
+                postRef.child("likes").child(userId).removeValue()
+            } else {
+                // If the user has not liked the post, add the like
+                postRef.child("likes").child(userId).setValue(true)
+            }
+        }
     }
+
 
 
     fun addComment(
@@ -161,7 +173,7 @@ class HomeViewModel(): ViewModel() {
                     // Remove postId from the saved post IDs list
                     _savedPostIds.value = _savedPostIds.value?.filter { it != postId }
                     Toast.makeText(
-                        context                        ,
+                        context,
                         "Post Has Been Removed from Saved",
                         Toast.LENGTH_SHORT
                     ).show()
@@ -171,7 +183,7 @@ class HomeViewModel(): ViewModel() {
                     // Add postId to the saved post IDs list
                     _savedPostIds.value = _savedPostIds.value?.plus(postId) ?: listOf(postId)
                     Toast.makeText(context, "Post Has Been Saved", Toast.LENGTH_SHORT).show()
-                    
+
                 }
             }
 
@@ -222,7 +234,7 @@ class HomeViewModel(): ViewModel() {
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val user = snapshot.getValue(UserModel::class.java)
-                    userLiveData.value = user?: UserModel()
+                    userLiveData.value = user ?: UserModel()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -231,8 +243,6 @@ class HomeViewModel(): ViewModel() {
             })
         return userLiveData
     }
-
-
 
 
 }

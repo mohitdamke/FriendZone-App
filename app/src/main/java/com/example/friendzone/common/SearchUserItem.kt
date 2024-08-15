@@ -29,7 +29,7 @@ fun SearchUserItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(2.dp)
     ) {
         Row(
             modifier = modifier
@@ -38,7 +38,7 @@ fun SearchUserItem(
                     val routes = SearchRouteScreen.OtherProfile.route.replace("{data}", users.uid)
                     navController.navigate(routes)
                 }
-                .padding(20.dp),
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -46,15 +46,15 @@ fun SearchUserItem(
                 contentDescription = null,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(60.dp)
+                    .size(44.dp)
             )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                Text(text = users.name, fontSize = 20.sp)
-                Text(text = users.bio, fontSize = 20.sp)
+                Text(text = users.name, fontSize = 18.sp)
+                Text(text = users.bio, fontSize = 18.sp)
             }
         }
 

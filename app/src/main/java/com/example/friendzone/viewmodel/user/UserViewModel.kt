@@ -26,6 +26,8 @@ import java.util.concurrent.TimeUnit
 
 class UserViewModel : ViewModel() {
 
+    var postsFetched = false
+    var storyFetched = false
     private val db = FirebaseDatabase.getInstance()
     private val postRef = db.getReference("posts")
     val storyRef = db.getReference("story")
@@ -79,41 +81,51 @@ class UserViewModel : ViewModel() {
         val currentTime = System.currentTimeMillis()
         val cutoffTime = currentTime - TimeUnit.HOURS.toMillis(24)
 
-        storyRef.orderByChild("timeStamp").endAt(cutoffTime.toDouble()).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                snapshot.children.forEach { storySnapshot ->
-                    val story = storySnapshot.getValue(StoryModel::class.java)
-                    val storyKey = storySnapshot.key
+        storyRef.orderByChild("timeStamp").endAt(cutoffTime.toDouble())
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.forEach { storySnapshot ->
+                        val story = storySnapshot.getValue(StoryModel::class.java)
+                        val storyKey = storySnapshot.key
 
-                    if (storyKey != null && story != null) {
-                        // Remove the story from the database
-                        storyRef.child(storyKey).removeValue().addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                story.imageStory?.let { imageUrl ->
-                                    if (imageUrl.isNotEmpty()) {
-                                        Firebase.storage.getReferenceFromUrl(imageUrl)
-                                            .delete()
-                                            .addOnSuccessListener {
-                                                Log.d("DeleteStory", "Image deleted successfully from storage")
-                                            }
-                                            .addOnFailureListener { exception ->
-                                                Log.d("DeleteStory", "Failed to delete image from storage: ${exception.message}")
-                                            }
+                        if (storyKey != null && story != null) {
+                            // Remove the story from the database
+                            storyRef.child(storyKey).removeValue().addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    story.imageStory?.let { imageUrl ->
+                                        if (imageUrl.isNotEmpty()) {
+                                            Firebase.storage.getReferenceFromUrl(imageUrl)
+                                                .delete()
+                                                .addOnSuccessListener {
+                                                    Log.d(
+                                                        "DeleteStory",
+                                                        "Image deleted successfully from storage"
+                                                    )
+                                                }
+                                                .addOnFailureListener { exception ->
+                                                    Log.d(
+                                                        "DeleteStory",
+                                                        "Failed to delete image from storage: ${exception.message}"
+                                                    )
+                                                }
+                                        }
                                     }
+                                    Log.d("DeleteStory", "Story deleted successfully from database")
+                                } else {
+                                    Log.d(
+                                        "DeleteStory",
+                                        "Failed to delete story from database: ${task.exception?.message}"
+                                    )
                                 }
-                                Log.d("DeleteStory", "Story deleted successfully from database")
-                            } else {
-                                Log.d("DeleteStory", "Failed to delete story from database: ${task.exception?.message}")
                             }
                         }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("DeleteStory", "Failed to delete story: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("DeleteStory", "Failed to delete story: ${error.message}")
+                }
+            })
     }
 
 
@@ -122,47 +134,107 @@ class UserViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 val user = snapshot.getValue(UserModel::class.java)
-                _users.value = user!!
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-            }
-
-
-        })
-    }
-
-
-    fun fetchPosts(uid: String) {
-        postRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val postList = snapshot.children.mapNotNull {
-                    it.getValue(PostModel::class.java)
+                if (user != null) {
+                    _users.value = user
+                } else {
+                    // Handle the null case here, e.g., log an error or provide a default value
+                    Log.e("UserViewModel", "User data is null for UID: $uid")
+                    _users.value = null  // or handle accordingly
                 }
-                _posts.postValue(postList)
             }
 
             override fun onCancelled(error: DatabaseError) {
+                Log.e("UserViewModel", "Error fetching user data: ${error.message}")
             }
         })
     }
+
+    //
+//    fun fetchPosts(uid: String) {
+//        if (postsFetched) {
+//            Log.d("UserViewModel", "fetchPosts: Posts already fetched, skipping.")
+//            return
+//        }
+//        Log.d("UserViewModel", "fetchPosts: Fetching posts for uid: $uid")
+//        postRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val postList = snapshot.children.mapNotNull {
+//                    it.getValue(PostModel::class.java)
+//                }
+//                _posts.postValue(postList)
+//                postsFetched = true
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e("UserViewModel", "fetchPosts: Failed to fetch posts: ${error.message}")
+//            }
+//        })
+//    }
+    fun fetchPosts(uid: String) {
+        if (postsFetched) {
+            Log.d("UserViewModel", "fetchPosts: Posts already fetched, skipping.")
+            return
+        }
+
+        // Set the flag immediately to prevent re-fetching during ongoing fetch
+        postsFetched = true
+        Log.d("UserViewModel", "fetchPosts: Fetching posts for uid: $uid")
+
+        _posts.postValue(emptyList())  // Optionally clear old posts
+        postRef.orderByChild("userId").equalTo(uid)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val postList = snapshot.children.mapNotNull {
+                        it.getValue(PostModel::class.java)
+                    }
+                    _posts.postValue(postList)
+                    Log.d("UserViewModel", "fetchPosts: Posts fetched successfully.")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("UserViewModel", "fetchPosts: Failed to fetch posts: ${error.message}")
+                    // Reset the flag in case of an error to allow re-attempt
+                    postsFetched = false
+                }
+            })
+    }
+
+
+//    fun fetchPosts(uid: String) {
+//        if (postsFetched) return
+//        postRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val postList = snapshot.children.mapNotNull {
+//                    it.getValue(PostModel::class.java)
+//                }
+//                _posts.postValue(postList)
+//                postsFetched = true
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//            }
+//        })
+//    }
 
     fun fetchStory(uid: String) {
-        storyRef.orderByChild("userId").equalTo(uid).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val storyList = snapshot.children.mapNotNull {
-                    val story = it.getValue(StoryModel::class.java)
-                    story?.apply {
-                        storyKey = it.key ?: "" // Set the key for each story
+        if (storyFetched) return
+        storyRef.orderByChild("userId").equalTo(uid)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val storyList = snapshot.children.mapNotNull {
+                        val story = it.getValue(StoryModel::class.java)
+                        story?.apply {
+                            storyKey = it.key ?: "" // Set the key for each story
+                        }
                     }
+                    _story.postValue(storyList)
+                    storyFetched = true
                 }
-                _story.postValue(storyList)
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("FetchStory", "Failed to fetch stories: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("FetchStory", "Failed to fetch stories: ${error.message}")
+                }
+            })
     }
 
     fun deleteStory(storyKey: String) {
@@ -178,10 +250,16 @@ class UserViewModel : ViewModel() {
                                     Firebase.storage.getReferenceFromUrl(imageUrl)
                                         .delete()
                                         .addOnSuccessListener {
-                                            Log.d("DeleteStory", "Image deleted successfully from storage")
+                                            Log.d(
+                                                "DeleteStory",
+                                                "Image deleted successfully from storage"
+                                            )
                                         }
                                         .addOnFailureListener { exception ->
-                                            Log.d("DeleteStory", "Failed to delete image from storage: ${exception.message}")
+                                            Log.d(
+                                                "DeleteStory",
+                                                "Failed to delete image from storage: ${exception.message}"
+                                            )
                                         }
                                 }
                             }
@@ -191,7 +269,10 @@ class UserViewModel : ViewModel() {
                             _story.postValue(currentStoryList)
                             _deleteSuccess.postValue(true)
                         } else {
-                            Log.d("DeleteStory", "Failed to delete story from database: ${task.exception?.message}")
+                            Log.d(
+                                "DeleteStory",
+                                "Failed to delete story from database: ${task.exception?.message}"
+                            )
                             _deleteSuccess.postValue(false)
                         }
                     }
@@ -230,7 +311,7 @@ class UserViewModel : ViewModel() {
             }
     }
 
-        fun getFollowing(userId: String) {
+    fun getFollowing(userId: String) {
         firestoreDb.collection("following").document(userId)
             .addSnapshotListener { snapshot, error ->
 
@@ -242,18 +323,19 @@ class UserViewModel : ViewModel() {
     fun fetchChatMessages(chatId: String) {
         val storyKey = chatRef.push().key ?: return
 
-        chatRef.child(chatId).orderByChild("timestamp").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val chatList = snapshot.children.mapNotNull {
-                    it.getValue(ChatModel::class.java)
+        chatRef.child(chatId).orderByChild("timestamp")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val chatList = snapshot.children.mapNotNull {
+                        it.getValue(ChatModel::class.java)
+                    }
+                    _chatMessages.postValue(chatList)
                 }
-                _chatMessages.postValue(chatList)
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("Chat", "Failed to fetch chat messages: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("Chat", "Failed to fetch chat messages: ${error.message}")
+                }
+            })
     }
 
     // Send a chat message
@@ -270,31 +352,42 @@ class UserViewModel : ViewModel() {
 
     // Delete a chat message
     fun deleteMessage(chatId: String, storeKey: String) {
-        chatRef.child(chatId).orderByChild("storeKey").equalTo(storeKey).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Iterate through all matching messages with the given storeKey
-                    snapshot.children.forEach { messageSnapshot ->
-                        val messageId = messageSnapshot.key
-                        if (messageId != null) {
-                            chatRef.child(chatId).child(messageId).removeValue().addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    Log.d("Chat", "Message with storeKey $storeKey deleted successfully")
-                                } else {
-                                    Log.d("Chat", "Failed to delete message with storeKey $storeKey: ${task.exception?.message}")
-                                }
+        chatRef.child(chatId).orderByChild("storeKey").equalTo(storeKey)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // Iterate through all matching messages with the given storeKey
+                        snapshot.children.forEach { messageSnapshot ->
+                            val messageId = messageSnapshot.key
+                            if (messageId != null) {
+                                chatRef.child(chatId).child(messageId).removeValue()
+                                    .addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            Log.d(
+                                                "Chat",
+                                                "Message with storeKey $storeKey deleted successfully"
+                                            )
+                                        } else {
+                                            Log.d(
+                                                "Chat",
+                                                "Failed to delete message with storeKey $storeKey: ${task.exception?.message}"
+                                            )
+                                        }
+                                    }
                             }
                         }
+                    } else {
+                        Log.d("Chat", "No message found with storeKey $storeKey")
                     }
-                } else {
-                    Log.d("Chat", "No message found with storeKey $storeKey")
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("Chat", "Failed to delete message with storeKey $storeKey: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d(
+                        "Chat",
+                        "Failed to delete message with storeKey $storeKey: ${error.message}"
+                    )
+                }
+            })
     }
 
 }

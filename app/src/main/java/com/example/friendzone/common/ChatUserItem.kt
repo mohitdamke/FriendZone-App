@@ -26,11 +26,6 @@ fun ChatUserItem(
     users: UserModel,
     navController: NavController,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-    ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -38,7 +33,8 @@ fun ChatUserItem(
                     val routes = ChatRouteScreen.OtherProfileChat.route.replace("{other_chat}", users.uid)
                     navController.navigate(routes)
                 }
-                .padding(20.dp),
+                .padding(20.dp)
+            ,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
@@ -54,30 +50,8 @@ fun ChatUserItem(
                     .padding(10.dp)
             ) {
                 Text(text = users.name, fontSize = 20.sp)
-                Text(text = users.bio, fontSize = 20.sp)
             }
         }
 
 
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

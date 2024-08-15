@@ -188,17 +188,20 @@ class AuthViewModel : ViewModel() {
         val updates = mutableMapOf<String, Any?>()
 
         // Only add fields that are not null or empty
-        if (!name.isNullOrEmpty()) {
-            updates["name"] = name
-        }
-        if (!bio.isNullOrEmpty()) {
-            updates["bio"] = bio
-        }
-        if (!userName.isNullOrEmpty()) {
-            updates["userName"] = userName
-        }
+//        if (!name.isNullOrEmpty()) {
+//            updates["name"] = name
+//        }
+//        if (!bio.isNullOrEmpty()) {
+//            updates["bio"] = bio
+//        }
+//        if (!userName.isNullOrEmpty()) {
+//            updates["userName"] = userName
+//        }
 
-        // Handle image update
+        name?.takeIf { it.isNotEmpty() }?.let { updates["name"] = it }
+        bio?.takeIf { it.isNotEmpty() }?.let { updates["bio"] = it }
+        userName?.takeIf { it.isNotEmpty() }?.let { updates["userName"] = it }
+
         if (imageUri != null) {
             val newImageRef = storageRef.child("users/${UUID.randomUUID()}.jpg")
             val uploadTask = newImageRef.putFile(imageUri)
@@ -212,7 +215,6 @@ class AuthViewModel : ViewModel() {
                 _error.postValue(exception.message)
             }
         } else {
-            // If no new image, just update text fields
             applyUpdates(userUpdate, updates, context)
         }
     }

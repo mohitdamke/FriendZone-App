@@ -2,6 +2,7 @@ package com.example.friendzone.presentation.screens.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,8 +26,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,6 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -46,10 +54,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.friendzone.R
 import com.example.friendzone.data.model.ChatModel
 import com.example.friendzone.nav.routes.ChatRouteScreen
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.SearchRouteScreen
+import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.Blue80
+import com.example.friendzone.ui.theme.PurpleGrey80
 import com.example.friendzone.viewmodel.chat.PeopleChatViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -83,140 +95,169 @@ fun ChatPeople(
         chatViewModel.fetchMessages(chatId) // Fetch messages using chatId
         userViewModel.fetchChatMessages(chatId) // Fetch chat messages
     }
-
-
-    Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Header Section
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = "User Chat", fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = modifier.padding(10.dp))
-
-            Column(
-                modifier = modifier.padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+    Scaffold(topBar = {
+        TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+        ), title = {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Raees")
-                Text(text = users!!.name ?: "Loading...", fontSize = 26.sp)
-                Spacer(modifier = modifier.padding(4.dp))
-                Text(text = "@${users!!.userName ?: "unknown"}", fontSize = 16.sp)
-                Spacer(modifier = modifier.padding(4.dp))
+                Spacer(modifier = modifier.padding(start = 20.dp))
+
                 Image(
-                    painter = rememberAsyncImagePainter(
-                        model = users!!.imageUrl
-                    ),
+                    painter = rememberAsyncImagePainter(model = users?.imageUrl),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(100.dp) // Adjust size as needed
-                        .clip(CircleShape) // If you want a circular image
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            val routes = SearchRouteScreen.OtherProfile.route.replace(
+                                "{data}",
+                                users!!.uid
+                            )
+                            navController.navigate(routes)
+                        }
+                        .border(
+                            width = 2.dp,
+                            color = Blue40,
+                            shape = CircleShape
+                        )
+                        .size(40.dp), contentScale = ContentScale.Crop
                 )
-                Spacer(modifier = modifier.padding(4.dp))
-                Text(text = "View Profile", fontSize = 16.sp, modifier = modifier.clickable {
-                    val routes = SearchRouteScreen.OtherProfile.route.replace("{data}", users!!.uid)
-                    navController.navigate(routes)
-                })
-                Spacer(modifier = Modifier.padding(16.dp))
-            }
-        }
-
-        // Chat Messages Section
-//        val messageList = chatState.messages.values.toList()
-        val messageList = chatMessages
-
-        LazyColumn(
-            modifier = modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalArrangement = Arrangement.Bottom // Scroll to the bottom
-        ) {
-            items(messageList) { message ->
-                if (message.senderId == currentUserId) {
-                    UserMessageItem(
-                        message = message,
-                        onDelete = {
-                            userViewModel.deleteMessage(
-                                chatId = chatId,
-                                storeKey = message.storeKey
-                            )
-                        }
-                    )
-                } else {
-                    OtherMessageItem(
-                        message = message,
-                        onDelete = {
-                            userViewModel.deleteMessage(
-                                chatId = chatId,
-                                storeKey = message.storeKey
-                            )
-                        }
-                    )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
+                    users?.let { Text(text = it.name, fontSize = 20.sp, color = Blue40) }
                 }
             }
-        }
 
-        // Input Field Section
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
 
-            OutlinedTextField(
-                value = chatViewModel.currentMessage,
-                onValueChange = { chatViewModel.currentMessage = it },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Image,
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .clickable { }, tint = Color.Gray
-                    )
-                },
-                label = {
-                    Text(
-                        text = "Type your Text", fontSize = 16.sp,
-                        fontWeight = FontWeight.W600, color = Color.Gray,
-                        fontFamily = FontFamily.SansSerif, maxLines = 1
-                    )
-                },
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Color.Gray,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedTextColor = Color.Gray,
-                    unfocusedTextColor = Color.Gray
-                ),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Send
-                ),
+        }, navigationIcon = {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = null,
                 modifier = modifier
-                    .padding(10.dp)
-                    .weight(1f), minLines = 1
+                    .size(30.dp)
+                    .clickable {
+                        navController.navigateUp()
+
+                    }, tint = Blue40
             )
 
-            IconButton(onClick = {
-                val newMessageRef = userViewModel.chatRef.child(chatId).push()
-                val storeKey = newMessageRef.key ?: return@IconButton
-                val message = ChatModel(
-                    senderId = currentUserId,
-                    receiverId = uid,
-                    messageText = chatViewModel.currentMessage,
-                    storeKey = storeKey,
-                    timestamp = System.currentTimeMillis()
-                )
-                userViewModel.sendMessage(chatId, message)
-                chatViewModel.currentMessage = ""
-            }) {
-                Icon(imageVector = Icons.Default.Send, contentDescription = "Send")
+
+        })
+    }) { paddingValues ->
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header Section
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+
+                // Chat Messages Section
+//        val messageList = chatState.messages.values.toList()
+                val messageList = chatMessages
+
+                LazyColumn(
+                    modifier = modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.Bottom // Scroll to the bottom
+                ) {
+                    items(messageList) { message ->
+                        if (message.senderId == currentUserId) {
+                            UserMessageItem(
+                                message = message,
+                                onDelete = {
+                                    userViewModel.deleteMessage(
+                                        chatId = chatId,
+                                        storeKey = message.storeKey
+                                    )
+                                }
+                            )
+                        } else {
+                            OtherMessageItem(
+                                message = message,
+                                onDelete = {
+                                    userViewModel.deleteMessage(
+                                        chatId = chatId,
+                                        storeKey = message.storeKey
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Input Field Section
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    OutlinedTextField(
+                        value = chatViewModel.currentMessage,
+                        onValueChange = { chatViewModel.currentMessage = it },
+                        label = {
+                            Text(
+                                text = "Type your message", fontSize = 16.sp,
+                                fontWeight = FontWeight.W600, color = Blue40,
+                                fontFamily = FontFamily.SansSerif, maxLines = 1
+                            )
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = Blue40,
+                            unfocusedBorderColor = Blue40,
+                            focusedTextColor = Blue40,
+                            unfocusedTextColor = Blue40
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Send
+                        ),
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .weight(1f), minLines = 1
+                    )
+
+                    IconButton(onClick = {
+                        val newMessageRef = userViewModel.chatRef.child(chatId).push()
+                        val storeKey = newMessageRef.key ?: return@IconButton
+                        val message = ChatModel(
+                            senderId = currentUserId,
+                            receiverId = uid,
+                            messageText = chatViewModel.currentMessage,
+                            storeKey = storeKey,
+                            timestamp = System.currentTimeMillis()
+                        )
+                        userViewModel.sendMessage(chatId, message)
+                        chatViewModel.currentMessage = ""
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = "Send",
+                            modifier = modifier.size(30.dp), tint = Blue40
+                        )
+                    }
+                }
+
             }
         }
 
@@ -241,15 +282,15 @@ fun UserMessageItem(message: ChatModel, onDelete: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(Blue40)
                 .padding(16.dp),
-            color = MaterialTheme.colorScheme.onPrimary
+            color = Black
         )
         Text(
             text = formattedTimestamp,
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier.padding(top = 2.dp, start = 230.dp),
+            modifier = Modifier.padding(top = 2.dp, start = 180.dp),
             textAlign = TextAlign.End
         )
     }
@@ -269,15 +310,15 @@ fun OtherMessageItem(message: ChatModel, onDelete: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.secondary)
+                .background(Blue80)
                 .padding(16.dp),
-            color = MaterialTheme.colorScheme.onSecondary
+            color = Black
         )
         Text(
             text = formattedTimestamp,
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier.padding(top = 2.dp, start = 230.dp)
+            modifier = Modifier.padding(top = 2.dp, start = 180.dp)
         )
     }
 }

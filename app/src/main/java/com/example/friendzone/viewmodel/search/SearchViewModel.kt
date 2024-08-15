@@ -18,28 +18,28 @@ class SearchViewModel : ViewModel() {
     val userList: LiveData<List<UserModel>> = _users
 
     private fun fetchUsers(onResult: (List<UserModel>) -> Unit) {
-        users.addValueEventListener(object : ValueEventListener {
+        users.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val result = mutableListOf<UserModel>()
+                val userList = mutableListOf<UserModel>()
                 for (userSnapshot in snapshot.children) {
                     val user = userSnapshot.getValue(UserModel::class.java)
                     if (user != null) {
-                        result.add(user)
+                        userList.add(user)
                     }
-//                    result.add(user!!)
                 }
-                onResult(result)
+                onResult(userList)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                // Handle error
+                onResult(emptyList())
             }
         })
     }
 
     fun fetchUsersExcludingCurrentUser(currentUserId: String) {
-        fetchUsers {
-            _users.value = it.filter { user -> user.uid != currentUserId }
+        fetchUsers { userList ->
+            _users.value = userList.filter { user -> user.uid != currentUserId }
         }
     }
 

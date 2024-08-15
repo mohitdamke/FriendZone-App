@@ -1,5 +1,8 @@
 package com.example.friendzone.nav.bottom_navigation
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Chat
@@ -10,19 +13,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.friendzone.nav.routes.MainRouteScreen
+import com.example.friendzone.ui.theme.Black40
+import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.Blue80
 
 @Composable
 fun BottomNavigationBar(
@@ -41,18 +47,21 @@ fun BottomNavigationBar(
 
     NavigationBar(
         modifier = modifier,
-        containerColor = LightGray,
+        containerColor = White,
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
         screens.forEach { screen ->
             NavigationBarItem(
-                label = {
-                    Text(text = screen.label)
-                },
                 icon = {
-                    Icon(imageVector = screen.icon, contentDescription = null)
+                    Icon(
+                        imageVector = screen.icon,
+                        contentDescription = null,
+                        modifier = modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                    )
                 },
                 selected = currentRoute == screen.route,
                 onClick = {
@@ -66,11 +75,14 @@ fun BottomNavigationBar(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     unselectedTextColor = Gray,
-                    selectedTextColor = White,
-                    selectedIconColor = Black,
-                    unselectedIconColor = Black,
-                    indicatorColor = White
-                ),
+                    selectedTextColor = Black,
+                    selectedIconColor = Blue40,
+                    unselectedIconColor = Blue80,
+                    indicatorColor = Black40
+                ), modifier = modifier
+                    .weight(1f)
+                    .clip(shape = CircleShape)
+                    .clip(RoundedCornerShape(100.dp))
             )
         }
     }
@@ -78,12 +90,12 @@ fun BottomNavigationBar(
 }
 
 
-sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
-    object Home : BottomNavItem(MainRouteScreen.Home.route, Icons.Default.Home, "Home")
-    object Search : BottomNavItem(MainRouteScreen.Search.route, Icons.Default.Search, "Search")
+sealed class BottomNavItem(val route: String, val icon: ImageVector) {
+    object Home : BottomNavItem(MainRouteScreen.Home.route, Icons.Default.Home)
+    object Search : BottomNavItem(MainRouteScreen.Search.route, Icons.Default.Search)
     object AddPost :
-        BottomNavItem(MainRouteScreen.AddPost.route, Icons.Default.AddCircle, "Add Post")
+        BottomNavItem(MainRouteScreen.AddPost.route, Icons.Default.AddCircle)
 
-    object ChatPeople : BottomNavItem(MainRouteScreen.Chat.route, Icons.Default.Chat, "Chat")
-    object Profile : BottomNavItem(MainRouteScreen.Profile.route, Icons.Default.Person, "Profile")
+    object ChatPeople : BottomNavItem(MainRouteScreen.Chat.route, Icons.Default.Chat)
+    object Profile : BottomNavItem(MainRouteScreen.Profile.route, Icons.Default.Person)
 }

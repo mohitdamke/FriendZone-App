@@ -3,41 +3,40 @@ package com.example.friendzone.common
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material.icons.filled.SaveAs
-import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.friendzone.R
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.MainRouteScreen
+import com.example.friendzone.ui.theme.Blue100
+import com.example.friendzone.ui.theme.Blue80
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -45,149 +44,153 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun PostItem(
     modifier: Modifier = Modifier,
-    post: PostModel,
-    users: UserModel,
+    post: PostModel?,
+    users: UserModel?,
     navController: NavController,
+    homeViewModel: HomeViewModel,
 ) {
 
     val context = LocalContext.current
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-    val homeViewModel: HomeViewModel = viewModel()
 
     val imagePagerState = rememberPagerState(pageCount = {
-        post.images.size ?: 0
+        post?.images?.size ?: 0
     })
 
-    val isLiked = post.likes.containsKey(currentUserId)
-    val isSaved = users.savedPosts.containsKey(post.storeKey)
+    val isLiked = post?.likes?.containsKey(currentUserId)
+    val isSaved = users?.savedPosts?.containsKey(post?.storeKey)
 
+    if (post == null || users == null) {
+        return
+    }
 
-    Column(
+    Card(
         modifier = modifier
-            .fillMaxSize()
-            .padding(10.dp)
+            .fillMaxWidth()
+            .padding(20.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(White)
     ) {
-        Row(
+        Column(
             modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(4.dp)
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = users!!.imageUrl),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(60.dp)
-                    .clickable {
-                        if (users!!.uid == currentUserId) {
-                            navController.navigate(MainRouteScreen.Profile.route) {
-                                launchSingleTop = true
-                            }
-                        } else {
-                            val routes = HomeRouteScreen.OtherProfile.route.replace("{data}", users!!.uid)
-                            navController.navigate(routes) {
-                                launchSingleTop = true
-                            }
-                        }
-                    },
-                contentScale = ContentScale.Crop
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Text(text = users!!.name, fontSize = 20.sp)
-                Text(text = post.post, fontSize = 20.sp)
-            }
-        }
-
-Spacer(modifier = modifier.height(10.dp))
-        if (post.images.isNotEmpty()) {
-            HorizontalPager(
-                state = imagePagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Spacer(modifier = modifier.padding(start = 60.dp))
-
-                Image(
-                    painter = rememberAsyncImagePainter(model = post.images[it]),
-                    contentDescription = null,
-                    modifier = Modifier.size(200.dp),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-        }
-
-
-//                Image(
-//                    painter = rememberAsyncImagePainter(model = post.images),
-//                    contentDescription = null,
-//                    modifier = modifier.size(100.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-
-        Spacer(modifier = modifier.padding(top = 20.dp))
-
-        Spacer(modifier = modifier.height(10.dp))
-        Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-
-            Icon(
-                imageVector =
-                if (isLiked) Icons.Filled.HeartBroken else Icons.Outlined.Share,
-                contentDescription = null,
+            Row(
                 modifier = modifier
-                    .size(30.dp)
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, top = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = users.imageUrl),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(50.dp)
+                        .clickable {
+                            if (users!!.uid == currentUserId) {
+                                navController.navigate(MainRouteScreen.Profile.route) {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                val routes = HomeRouteScreen.OtherProfile.route.replace(
+                                    "{data}", users!!.uid
+                                )
+                                navController.navigate(routes) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        },
+                    contentScale = ContentScale.Crop
+                )
+
+                Text(
+                    text = users!!.userName,
+                    fontSize = 20.sp,
+                    modifier = modifier.padding(start = 10.dp)
+                )
+
+                Spacer(modifier = modifier.padding(start = 130.dp))
+
+                Image(painter = if (isSaved == true) painterResource(id = R.drawable.bookmark) else painterResource(
+                    id = R.drawable.save_instagram
+                ), contentDescription = null, modifier = modifier
+                    .size(24.dp)
+                    .clickable {
+                        homeViewModel.toggleSavePost(
+                            postId = post.storeKey ?: "", context = context
+                        )
+                    })
+            }
+
+            if (post.images?.isNotEmpty() == true) {
+                HorizontalPager(
+                    state = imagePagerState, modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = post.images?.get(it)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .weight(1f)
+                            .size(370.dp),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
+            }
+
+            Column(
+                modifier = modifier
+                    .padding(start = 12.dp)
+                    .padding(4.dp)
+            ) {
+                Text(text = post.post, fontSize = 18.sp, fontWeight = FontWeight.Normal)
+            }
+
+            Spacer(modifier = modifier.padding(top = 20.dp))
+
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Spacer(modifier = modifier.padding(start = 10.dp))
+
+                Image(painter = painterResource(id = R.drawable.comment),
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(24.dp)
+                        .clickable {
+                            navController.navigate(
+                                HomeRouteScreen.CommentDetail.route.replace(
+                                    "{comment_detail}", post.storeKey ?: ""
+                                )
+                            )
+                        })
+                Spacer(modifier = modifier.padding(start = 6.dp))
+                Text(text = "${post.comments.size} comment")
+                Spacer(modifier = modifier.padding(start = 130.dp))
+
+
+                Text(text = "${post.likes.size} Likes")
+                Spacer(modifier = modifier.padding(start = 6.dp))
+                Image(painter = if (isLiked == true) painterResource(id = R.drawable.heartfilled) else painterResource(
+                    id = R.drawable.heart
+                ), contentDescription = null, modifier = modifier
+                    .size(24.dp)
                     .clickable {
                         if (currentUserId.isNotEmpty()) {
                             homeViewModel.toggleLike(
-                                postId = post.storeKey ?: "",
-                                userId = currentUserId
+                                postId = post?.storeKey ?: "", userId = currentUserId
                             )
                         }
-                    }
-            )
-            Spacer(modifier = modifier.padding(start = 2.dp))
-            Text(text = "${post.likes.size} Likes")
-            Spacer(modifier = modifier.padding(start = 10.dp))
-
-            Icon(imageVector = Icons.Outlined.ModeComment,
-                contentDescription = null,
-                modifier = modifier
-                    .size(30.dp)
-                    .clickable {
-                        navController.navigate(
-                            HomeRouteScreen.CommentDetail.route.replace(
-                                "{comment_detail}",
-                                post.storeKey ?: ""
-                            )
-                        )
                     })
-            Spacer(modifier = modifier.padding(start = 2.dp))
-            Text(text = "${post.comments.size} Comments")
-            Spacer(modifier = modifier.padding(start = 10.dp))
-            Icon(
-                imageVector = if (isSaved) {
-                    Icons.Outlined.Save
-                } else Icons.Filled.SaveAs,
-                contentDescription = null,
-                modifier = modifier.clickable {
-                    homeViewModel.toggleSavePost(
-                        postId = post.storeKey ?: "",
-                        context = context
-                    )
-
-
-                })
-            Spacer(modifier = modifier.padding(start = 2.dp))
-            Text(text = "Save")
+            }
         }
-
-        Divider(modifier = modifier.padding(10.dp))
-        Spacer(modifier = modifier.height(10.dp))
-
+        Spacer(modifier = modifier.padding(top = 10.dp))
     }
 }
 

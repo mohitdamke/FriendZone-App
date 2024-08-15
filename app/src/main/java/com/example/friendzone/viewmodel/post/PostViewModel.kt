@@ -55,13 +55,13 @@ class PostViewModel() : ViewModel() {
     fun saveData(
         post: String,
         userId: String,
-        images: List<String>,
+        images: List<String>?,
         storeKey: String
     ) {
-        val newThreadRef = postRef.child(storeKey)
+        val newPostRef = postRef.child(storeKey)
         val postData = PostModel(
             post = post,
-            images = images,
+            images = images ?: emptyList(),
             userId = userId,
             storeKey = storeKey,
             timeStamp = System.currentTimeMillis().toString(),
@@ -69,7 +69,7 @@ class PostViewModel() : ViewModel() {
             comments = emptyList()
         )
 
-        newThreadRef.setValue(postData).addOnSuccessListener {
+        newPostRef.setValue(postData).addOnSuccessListener {
             _isPosted.value = true
         }.addOnFailureListener {
             _isPosted.value = false
