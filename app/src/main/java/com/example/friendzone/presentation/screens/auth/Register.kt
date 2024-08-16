@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -148,7 +149,7 @@ fun Register(
                         modifier = modifier,
                         shape = RoundedCornerShape(30.dp),
                         elevation = CardDefaults.cardElevation(10.dp),
-                        colors = CardDefaults.cardColors()
+                        colors = CardDefaults.cardColors(White)
                     ) {
                         Spacer(modifier = Modifier.padding(top = 30.dp))
                         Column(modifier = modifier.padding(20.dp)) {

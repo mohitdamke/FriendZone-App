@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -26,32 +28,30 @@ fun ChatUserItem(
     users: UserModel,
     navController: NavController,
 ) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .clickable {
-                    val routes = ChatRouteScreen.OtherProfileChat.route.replace("{other_chat}", users.uid)
-                    navController.navigate(routes)
-                }
-                .padding(20.dp)
-            ,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(2.dp)
+    ) {
+        Row(modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                val routes =
+                    ChatRouteScreen.OtherProfileChat.route.replace("{other_chat}", users.uid)
+                navController.navigate(routes)
+            }
+            .padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painter = rememberAsyncImagePainter(model = users.imageUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(60.dp)
+                    .size(44.dp),
+                contentScale = ContentScale.Crop
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Text(text = users.name, fontSize = 20.sp)
-            }
+            Spacer(modifier = modifier.padding(start = 10.dp))
+            Text(text = users.name, fontSize = 20.sp)
         }
-
-
     }
+
+}

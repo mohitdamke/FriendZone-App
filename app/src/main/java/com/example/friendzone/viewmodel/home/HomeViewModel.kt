@@ -61,7 +61,7 @@ class HomeViewModel() : ViewModel() {
     }
 
 
-   private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
+    private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
 
         postRef.addListenerForSingleValueEvent(object : ValueEventListener {
 
@@ -92,7 +92,7 @@ class HomeViewModel() : ViewModel() {
         db.getReference("users").child(post.userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val user : UserModel? = snapshot.getValue(UserModel::class.java)
+                    val user: UserModel? = snapshot.getValue(UserModel::class.java)
                     user?.let(onResult)
 //                    user?.let { onResult(it) }
                 }
@@ -123,7 +123,9 @@ class HomeViewModel() : ViewModel() {
         userId: String,
         username: String,
         name: String,
-        commentText: String
+        image: String,
+        commentText: String,
+        timeStamp: String
     ) {
         val postRef = db.getReference("posts").child(postId)
         postRef.child("comments").addListenerForSingleValueEvent(object : ValueEventListener {
@@ -133,7 +135,7 @@ class HomeViewModel() : ViewModel() {
 
                 val newComment = CommentModel(
                     userId = userId, username = username,
-                    name = name, text = commentText
+                    name = name, text = commentText, image = image, timestamp = timeStamp
                 )
                 commentsList.add(newComment)
 

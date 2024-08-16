@@ -1,7 +1,8 @@
 package com.example.threadpractice.geminiAi.data
 
 import android.graphics.Bitmap
-import com.example.threadpractice.geminiAi.api.CommonApi
+import com.example.friendzone.R
+import com.example.friendzone.geminiAi.api.CommonApi
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ object ChatData {
     suspend fun getResponse(prompt: String): Chat {
         val generativeModel = GenerativeModel(
             modelName = "gemini-pro",
-            apiKey = CommonApi().api_key
+            apiKey = CommonApi().chatApiKey
         )
         try {
             val response = withContext(Dispatchers.IO) {
@@ -39,7 +40,7 @@ object ChatData {
     suspend fun getResponseWithImage(prompt: String, bitmap: Bitmap): Chat {
         val generativeModel = GenerativeModel(
             modelName = "gemini-pro-vision",
-            apiKey = CommonApi().api_key
+            apiKey = CommonApi().chatApiKey
         )
         try {
 

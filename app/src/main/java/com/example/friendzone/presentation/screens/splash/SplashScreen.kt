@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,19 +40,29 @@ fun SplashScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "FZ",
-            fontSize = 100.sp,
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic ,
-            color = Blue40
+
+        Image(
+            painter = painterResource(id = R.drawable.fz_1),
+            contentDescription = null,
+            modifier = Modifier
+                .size(160.dp)
+                .clip(CircleShape)
         )
-        Text(text = "FriendZone",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Normal,
-            fontStyle = FontStyle.Normal ,
-            color = Blue40, letterSpacing = 10.sp)
+
     }
+//        Text(
+//            text = "FZ",
+//            fontSize = 100.sp,
+//            fontWeight = FontWeight.Bold,
+//            fontStyle = FontStyle.Italic ,
+//            color = Blue40
+//        )
+//        Text(text = "FriendZone",
+//            fontSize = 26.sp,
+//            fontWeight = FontWeight.Normal,
+//            fontStyle = FontStyle.Normal ,
+//            color = Blue40, letterSpacing = 10.sp)
+//    }
     LaunchedEffect(key1 = true) {
         delay(1000)
 

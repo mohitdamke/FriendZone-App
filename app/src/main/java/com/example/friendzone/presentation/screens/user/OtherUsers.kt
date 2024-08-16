@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -94,7 +97,9 @@ fun OtherUsers(
                 Column(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(paddingValues)
+                        .padding(14.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
                         modifier = modifier.fillMaxWidth(),
@@ -177,10 +182,35 @@ fun OtherUsers(
                             )
                         }
                     }
+
+                    Button(
+                        onClick = {
+                            if (currentUserId != "") {
+                                userViewModel.followOrUnfollowUser(
+                                    uid,
+                                    currentUserId,
+                                    isFollowing
+                                )
+                            }
+                        }, modifier = modifier.fillMaxWidth(), colors = ButtonColors(
+                            contentColor = Color.White,
+                            containerColor = Blue40,
+                            disabledContentColor = Color.Gray,
+                            disabledContainerColor = Blue40
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = if (isFollowing) {
+                                "Following"
+                            } else {
+                                "Follow"
+                            }, fontSize = 16.sp,
+                            modifier = modifier.padding(10.dp)
+                        )
+                    }
+
                 }
-
-                Spacer(modifier = Modifier.padding(16.dp))
-
             }
             if (users != null) {
                 this@LazyColumn.items(

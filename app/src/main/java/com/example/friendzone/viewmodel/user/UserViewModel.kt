@@ -49,9 +49,9 @@ class UserViewModel : ViewModel() {
 
     private val _followingList = MutableLiveData(listOf<String>())
     val followingList: LiveData<List<String>> get() = _followingList
-
-    private val _users = MutableLiveData(UserModel())
-    val users: LiveData<UserModel> get() = _users
+//
+//    private val _users = MutableLiveData(UserModel())
+//    val users: LiveData<UserModel> get() = _users
 
     private val _deleteSuccess = MutableLiveData<Boolean>()
     val deleteSuccess: LiveData<Boolean> = _deleteSuccess
@@ -128,26 +128,51 @@ class UserViewModel : ViewModel() {
             })
     }
 
+    private val _users = MutableLiveData<UserModel?>()
+    val users: LiveData<UserModel?> get() = _users
 
     fun fetchUsers(uid: String) {
         userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 val user = snapshot.getValue(UserModel::class.java)
-                if (user != null) {
+                if (user != null && user.uid == uid) {
                     _users.value = user
                 } else {
-                    // Handle the null case here, e.g., log an error or provide a default value
                     Log.e("UserViewModel", "User data is null for UID: $uid")
-                    _users.value = null  // or handle accordingly
+                    _users.value = UserModel() // or some default UserModel instance
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("UserViewModel", "Error fetching user data: ${error.message}")
+                _users.value = UserModel() // or some default UserModel instance
             }
         })
     }
+
+//    fun fetchUsers(uid: String) {
+//        userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//
+//                val user = snapshot.getValue(UserModel::class.java)
+//                if (user != null && user.uid == uid) {
+//                    _users.value = user
+//
+//
+//                } else {
+//                    // Handle the null case here, e.g., log an error or provide a default value
+//                    Log.e("UserViewModel", "User data is null for UID: $uid")
+//                    _users.value = null
+//                    // You can also throw an exception or perform other actions here
+//
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e("UserViewModel", "Error fetching user data: ${error.message}")
+//            }
+//        })
+//    }
 
     //
 //    fun fetchPosts(uid: String) {

@@ -1,6 +1,5 @@
 package com.example.friendzone.presentation.screens.chat
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.friendzone.common.ChatUserItem
-import com.example.friendzone.common.OutlineText
 import com.example.friendzone.nav.routes.ChatRouteScreen
 import com.example.friendzone.ui.theme.Blue40
 import com.example.friendzone.ui.theme.Blue80
@@ -105,14 +103,14 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
                                 users = pairs,
                                 navController = navController,
                             )
-                        }
+                        } }
                     }
                 }
 
             }
         }
     }
-}
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

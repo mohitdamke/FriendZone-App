@@ -48,7 +48,9 @@ fun CommentsScreen(
                 postId = postId,
                 commentText = commentText,
                 username = SharedPref.getUserName(context),
-                name = SharedPref.getName(context)
+                name = SharedPref.getName(context),
+                image = SharedPref.getImageUrl(context),
+                timeStamp = System.currentTimeMillis().toString()
             )
         }
     }

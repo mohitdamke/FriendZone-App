@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,13 +57,13 @@ fun Setting(modifier: Modifier = Modifier, navController: NavController) {
     }
 
 
-
     Scaffold { padding ->
 
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+                .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
@@ -96,10 +99,18 @@ fun Setting(modifier: Modifier = Modifier, navController: NavController) {
                         ).show()
                     }
                 }, modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(), colors = ButtonColors(
+                    contentColor = Color.White,
+                    containerColor = Blue40,
+                    disabledContentColor = Color.Gray,
+                    disabledContainerColor = Blue40
+                ),
+                shape = RoundedCornerShape(10.dp)
             ) {
-                Text(text = "Logout")
+                Text(
+                    text = "Logout", fontSize = 16.sp,
+                    modifier = modifier.padding(10.dp)
+                )
             }
         }
     }

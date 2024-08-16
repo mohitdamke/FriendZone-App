@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -74,7 +75,7 @@ fun PostItem(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(6.dp)
         ) {
             Row(
                 modifier = modifier
@@ -112,7 +113,7 @@ fun PostItem(
                     modifier = modifier.padding(start = 10.dp)
                 )
 
-                Spacer(modifier = modifier.padding(start = 130.dp))
+                Spacer(modifier = modifier.padding(start = 170.dp))
 
                 Image(painter = if (isSaved == true) painterResource(id = R.drawable.bookmark) else painterResource(
                     id = R.drawable.save_instagram
@@ -130,6 +131,7 @@ fun PostItem(
                     state = imagePagerState, modifier = Modifier
                         .fillMaxSize()
                         .padding(10.dp)
+                        .height(200.dp)
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(model = post.images?.get(it)),
@@ -137,7 +139,7 @@ fun PostItem(
                         modifier = Modifier
                             .weight(1f)
                             .size(370.dp),
-                        contentScale = ContentScale.Fit,
+                        contentScale = ContentScale.Crop,
                     )
                 }
             }

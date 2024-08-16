@@ -101,8 +101,10 @@ fun Login(
 
 
             Card(
-                modifier = modifier, shape = RoundedCornerShape(30.dp),
-                elevation = CardDefaults.cardElevation(10.dp), colors = CardDefaults.cardColors()
+                modifier = modifier,
+                shape = RoundedCornerShape(30.dp),
+                elevation = CardDefaults.cardElevation(10.dp),
+                colors = CardDefaults.cardColors(White)
             ) {
                 Column(modifier = modifier.padding(20.dp)) {
 

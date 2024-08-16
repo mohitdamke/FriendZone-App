@@ -27,11 +27,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Send
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,6 +45,8 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -59,6 +61,7 @@ import com.example.friendzone.ui.theme.Blue40
 import com.example.friendzone.ui.theme.Blue80
 import kotlinx.coroutines.flow.MutableStateFlow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AiChatScreen(
     modifier: Modifier = Modifier,
@@ -93,101 +96,129 @@ fun AiChatScreen(
     }
 
 
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = paddingValues.calculateTopPadding())
-            .padding(bottom = 10.dp), verticalArrangement = Arrangement.Bottom
-    ) {
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            reverseLayout = true
-        ) {
-            itemsIndexed(chatState.chatList) { index, chat ->
-                if (chat.isFromUser) {
-                    UserChatItem(
-                        prompt = chat.prompt, bitmap = chat.image
-                    )
-                } else {
-                    ModelChatItem(response = chat.prompt)
-                }
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp, start = 4.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Column {
-                bitmap?.let {
-                    Image(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .padding(bottom = 2.dp)
-                            .clip(RoundedCornerShape(6.dp)),
-                        contentDescription = "picked image",
-                        contentScale = ContentScale.Crop,
-                        bitmap = it.asImageBitmap()
-                    )
-                }
-
-                Icon(
+                Column(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clickable {
-                            val permission =
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    Manifest.permission.READ_MEDIA_IMAGES
-                                } else {
-                                    Manifest.permission.READ_EXTERNAL_STORAGE
-                                }
-                            permissionLauncher.launch(permission)
-                        },
-                    imageVector = Icons.Rounded.AddPhotoAlternate,
-                    contentDescription = "Add Photo",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding())
+                        .padding(bottom = 10.dp),
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    Column(
+                        modifier = modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = modifier.padding(top = 20.dp))
+
+                        Text(
+                            text = "Ai Chat",
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            color = Blue40
+                        )
+                    }
+
+                    Spacer(modifier = modifier.padding(top = 20.dp))
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        reverseLayout = true
+                    ) {
+                        itemsIndexed(chatState.chatList) { index, chat ->
+                            if (chat.isFromUser) {
+                                UserChatItem(
+                                    prompt = chat.prompt, bitmap = chat.image
+                                )
+                            } else {
+                                ModelChatItem(response = chat.prompt)
+                            }
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp, start = 4.dp, end = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Column {
+                            bitmap?.let {
+                                Image(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .padding(bottom = 2.dp)
+                                        .clip(RoundedCornerShape(6.dp)),
+                                    contentDescription = "picked image",
+                                    contentScale = ContentScale.Crop,
+                                    bitmap = it.asImageBitmap()
+                                )
+                            }
+
+                            Icon(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clickable {
+                                        val permission =
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                                Manifest.permission.READ_MEDIA_IMAGES
+                                            } else {
+                                                Manifest.permission.READ_EXTERNAL_STORAGE
+                                            }
+                                        permissionLauncher.launch(permission)
+                                    },
+                                imageVector = Icons.Rounded.AddPhotoAlternate,
+                                contentDescription = "Add Photo",
+                                tint = Blue40
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        OutlinedTextField(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(20.dp),
+                            value = chatState.prompt,
+                            onValueChange = {
+                                chaViewModel.onEvent(ChatUiEvent.UpdatePrompt(it))
+                            },
+                            placeholder = {
+                                Text(text = "Type a prompt")
+                            },
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = Blue40,
+                                unfocusedBorderColor = Blue40,
+                                focusedTextColor = Black,
+                                unfocusedTextColor = Black
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Icon(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable {
+                                    chaViewModel.onEvent(
+                                        ChatUiEvent.SendPrompt(
+                                            chatState.prompt, bitmap
+                                        )
+                                    )
+                                    uriState.value = null
+                                },
+                            imageVector = Icons.Rounded.Send,
+                            contentDescription = "Send prompt",
+                            tint = Blue40
+                        )
+
+                    }
+
+                }
+
             }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            OutlinedTextField(
-                modifier = Modifier.weight(1f), shape = RoundedCornerShape(20.dp),
-                value = chatState.prompt,
-                onValueChange = {
-                    chaViewModel.onEvent(ChatUiEvent.UpdatePrompt(it))
-                },
-                placeholder = {
-                    Text(text = "Type a prompt")
-                })
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Icon(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable {
-                        chaViewModel.onEvent(ChatUiEvent.SendPrompt(chatState.prompt, bitmap))
-                        uriState.value = null
-                    },
-                imageVector = Icons.Rounded.Send,
-                contentDescription = "Send prompt",
-                tint = MaterialTheme.colorScheme.primary
-            )
-
-        }
-
-    }
-
-}
 
 @Composable
 fun UserChatItem(prompt: String, bitmap: Bitmap?) {
@@ -213,10 +244,7 @@ fun UserChatItem(prompt: String, bitmap: Bitmap?) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Blue40)
-                .padding(16.dp),
-            text = prompt,
-            fontSize = 18.sp,
-            color = Black
+                .padding(16.dp), text = prompt, fontSize = 18.sp, color = Black
         )
 
     }
@@ -232,10 +260,7 @@ fun ModelChatItem(response: String) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(Blue80)
-                .padding(16.dp),
-            text = response,
-            fontSize = 18.sp,
-            color = Black
+                .padding(16.dp), text = response, fontSize = 18.sp, color = Black
         )
     }
 }
