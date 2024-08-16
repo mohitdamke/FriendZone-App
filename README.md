@@ -5,6 +5,14 @@ Here's a detailed article and GitHub README for your social media app. This will
 ## FriendZone Social Media App with Kotlin and Jetpack Compose
 
 Welcome to our Social Media App project! This application is built using Kotlin and Jetpack Compose and integrates Firebase for authentication, storage, and real-time data management. The app provides a comprehensive suite of features to manage user interactions, posts, and personal profiles.
+![6](https://github.com/user-attachments/assets/5e21e289-417c-4ae2-b370-a5a7f6e34986)
+![5](https://github.com/user-attachments/assets/f6cf4956-ad4c-4a08-b25b-2419fd24b711)
+![4](https://github.com/user-attachments/assets/17cf65a1-8205-4bad-bda8-1c833183e579)
+![3](https://github.com/user-attachments/assets/29193b05-e5cf-467d-aa0b-5a9393ab89ec)
+![2](https://github.com/user-attachments/assets/4954542b-5470-4c3a-a029-c0192dca54a8)
+![1](https://github.com/user-attachments/assets/eb93e6e0-3e3c-46f4-bd0b-cd8035f18e2d)
+
+
 
 ### Features
 
