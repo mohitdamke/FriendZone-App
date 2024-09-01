@@ -37,20 +37,6 @@ class HomeViewModel() : ViewModel() {
     private var _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private var lastFetchedKey: String? = null
-
-    private val DEFAULT_PAGE_SIZE = 10 // Define the number of posts to fetch initially
-
-//    init {
-//        fetchPostsAndUsers {
-//            _postsAndUsers.value = it
-//        }
-//        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-//        fetchSavedPost(currentUserId)
-//
-//    }
-
-
     init {
 
         fetchPostsAndUsers { it ->

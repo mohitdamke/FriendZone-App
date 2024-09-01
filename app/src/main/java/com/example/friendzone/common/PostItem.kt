@@ -30,14 +30,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.R
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.MainRouteScreen
-import com.example.friendzone.ui.theme.Blue100
-import com.example.friendzone.ui.theme.Blue80
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -48,6 +47,7 @@ fun PostItem(
     post: PostModel?,
     users: UserModel?,
     navController: NavController,
+    navController2: NavController = rememberNavController(),
     homeViewModel: HomeViewModel,
 ) {
 
@@ -91,24 +91,21 @@ fun PostItem(
                         .clip(CircleShape)
                         .size(50.dp)
                         .clickable {
-                            if (users!!.uid == currentUserId) {
-                                navController.navigate(MainRouteScreen.Profile.route) {
-                                    launchSingleTop = true
-                                }
-                            } else {
-                                val routes = HomeRouteScreen.OtherProfile.route.replace(
-                                    "{data}", users!!.uid
+                            if (currentUserId.isNotEmpty() && users.uid == currentUserId)
+                                navController2.navigate(MainRouteScreen.Profile.route)
+                            else {
+                                navController.navigate(
+                                    HomeRouteScreen.OtherProfile.route.replace(
+                                        oldValue = "{other_profile}", newValue = users.uid
+                                    )
                                 )
-                                navController.navigate(routes) {
-                                    launchSingleTop = true
-                                }
                             }
                         },
                     contentScale = ContentScale.Crop
                 )
 
                 Text(
-                    text = users!!.userName,
+                    text = users.userName,
                     fontSize = 20.sp,
                     modifier = modifier.padding(start = 10.dp)
                 )

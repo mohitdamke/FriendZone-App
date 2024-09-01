@@ -34,7 +34,7 @@ sealed class HomeRouteScreen(val route: String) {
     object  AddStory : HomeRouteScreen("add_story")
     object  CommentDetail : HomeRouteScreen("comment_detail/{comment_detail}")
     object  AllStory : HomeRouteScreen("all_story/{all_story}")
-    object  OtherProfile : HomeRouteScreen("other_profile/{data}")
+    object  OtherProfile : HomeRouteScreen("other_profile/{other_profile}")
 }
 
 sealed class SearchRouteScreen(val route: String) {

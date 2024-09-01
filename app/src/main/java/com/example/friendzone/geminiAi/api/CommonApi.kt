@@ -1,5 +1,6 @@
-package com.example.threadpractice.geminiAi.api
+package com.example.friendzone.geminiAi.api
 
-data class CommonApi (
-    val api_key: String = "AIzaSyDf-JoEITNDK04f4JSZ7ak2eeMWrhEoYoU"
-)
+class CommonApi(){
+
+    val chatApiKey: String = "AIzaSyDU5CLn2ZxxGnHGqWUZsvQHyVNrXnkMnBw"
+}

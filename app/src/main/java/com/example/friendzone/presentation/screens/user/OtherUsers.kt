@@ -106,7 +106,7 @@ fun OtherUsers(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "${users!!.name} Profile",
+                            text = "${users?.name ?: "Loading"} Profile",
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
@@ -116,7 +116,7 @@ fun OtherUsers(
                     Spacer(modifier = modifier.padding(top = 20.dp))
                     Image(
                         painter = rememberAsyncImagePainter(
-                            model = users!!.imageUrl
+                            model = users?.imageUrl ?: "https://picsum.photos/200/300"
                         ),
                         contentDescription = null,
                         modifier = modifier
@@ -130,9 +130,9 @@ fun OtherUsers(
 
 
 
-                    Text(text = users!!.name, fontSize = 26.sp)
+                    Text(text = users?.name ?: "Loading", fontSize = 26.sp)
                     Spacer(modifier = modifier.padding(top = 4.dp))
-                    Text(text = "@${users!!.userName}", fontSize = 16.sp)
+                    Text(text = "@${users?.userName ?: "Loading Username"}", fontSize = 16.sp)
                     Row(
                         modifier = modifier
                             .fillMaxWidth()

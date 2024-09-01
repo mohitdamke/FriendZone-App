@@ -1,7 +1,6 @@
 package com.example.friendzone.presentation.screens.profile
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -32,9 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -71,75 +66,31 @@ fun ProfileScreen(
     val authViewModel: AuthViewModel = viewModel()
     val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
     val homeViewModel: HomeViewModel = viewModel()
-
     val userViewModel: UserViewModel = viewModel()
-    val posts by userViewModel.posts.observeAsState(null)
 
-
-    val followerList by userViewModel.followerList.observeAsState(null)
-    val followingList by userViewModel.followingList.observeAsState(null)
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(key1 = firebaseUser) {
-        Log.d("TAG", "ProfileScreen: Data Fetch ")
-        if (firebaseUser != null) userViewModel.fetchPosts(firebaseUser!!.uid)
-        userViewModel.getFollowers(firebaseUser!!.uid)
-        userViewModel.getFollowing(firebaseUser!!.uid)
-        homeViewModel.fetchSavedPost(firebaseUser!!.uid)
-
-        Log.d("TAG", "ProfileScreen: Data Fetch ")
-    }
-    var currentUserId = ""
-    if (FirebaseAuth.getInstance().currentUser != null) currentUserId =
-        FirebaseAuth.getInstance().currentUser!!.uid
-
-    val hasFetchedData = remember { mutableStateOf(false) }
-
-//    LaunchedEffect(key1 = currentUserId) {
-//        if (currentUserId.isNotEmpty() && !hasFetchedData.value) {
-//            userViewModel.getFollowers(currentUserId)
-//            userViewModel.getFollowing(currentUserId)
-//            hasFetchedData.value = true
-//        }
-//        else{
-//            userViewModel.getFollowers(currentUserId)
-//            userViewModel.getFollowing(currentUserId)
-//        }
-//    }
-//
-
-
-//
-//    if (currentUserId != "") {
-//        LaunchedEffect(key1 = currentUserId) {
-//            userViewModel.getFollowers(currentUserId)
-//            userViewModel.getFollowing(currentUserId)
-//            userViewModel.fetchPosts(currentUserId)
-//            homeViewModel.fetchSavedPost(userId = currentUserId)
-//        }
-//    }
-
-
-    val currentUser = FirebaseAuth.getInstance().currentUser?.uid
-
+    val posts by userViewModel.posts.observeAsState(emptyList())
+    val followerList by userViewModel.followerList.observeAsState(emptyList())
+    val followingList by userViewModel.followingList.observeAsState(emptyList())
     val savedThreadIds by homeViewModel.savedPostIds.observeAsState(emptyList())
-    val postsToDisplay =
-        posts!!.filter { it.userId == currentUserId } // Filter for uploaded posts
-    val savedPostsToDisplay =
-        postsToDisplay.filter { savedThreadIds.contains(it.userId) } // Filter for saved posts
-    val unsavedPostsToDisplay =
-        postsToDisplay.filter { !savedThreadIds.contains(it.userId) } // Filter for unsaved posts
 
+    LaunchedEffect(firebaseUser) {
+        firebaseUser?.uid?.let { userId ->
+            userViewModel.fetchPosts(userId)
+            userViewModel.getFollowers(userId)
+            userViewModel.getFollowing(userId)
+            homeViewModel.fetchSavedPost(userId)
+        }
+    }
 
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+    val postsToDisplay = posts.filter { it.userId == currentUserId }
+    val savedPostsToDisplay = postsToDisplay.filter { savedThreadIds.contains(it.userId) }
+    val unsavedPostsToDisplay = postsToDisplay.filter { !savedThreadIds.contains(it.userId) }
 
-
-    LaunchedEffect(currentUser) {
-        Log.d("TAG currentUser", "Current user Logout: STARTS " + currentUser.toString())
-        if (currentUser == null) {
+    LaunchedEffect(currentUserId) {
+        if (currentUserId.isEmpty()) {
             navController.navigate(AuthRouteScreen.Login.route) {
-                popUpTo(MainRouteScreen.Profile.route) {
-                    inclusive = true
-                }
+                popUpTo(MainRouteScreen.Profile.route) { inclusive = true }
             }
         }
     }
@@ -149,202 +100,157 @@ fun ProfileScreen(
         name = SharedPref.getName(context),
         userName = SharedPref.getUserName(context),
         bio = SharedPref.getBio(context),
-        imageUrl = SharedPref.getImageUrl(context),
+        imageUrl = SharedPref.getImageUrl(context)
     )
 
     Scaffold { paddingValues ->
-
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
             item {
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Column(
-                        modifier = modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Your Profile",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            color = Blue40
-                        )
-                    }
-                    Spacer(modifier = modifier.padding(top = 20.dp))
-                    Box(modifier = modifier) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                model = SharedPref.getImageUrl(
-                                    context
-                                )
-                            ),
-                            contentDescription = null,
-                            modifier = modifier
-                                .size(120.dp)
-                                .padding(2.dp)
-                                .border(width = 4.dp, color = White, shape = CircleShape)
-                                .padding(2.dp)
-                                .border(width = 4.dp, color = Black, shape = CircleShape)
-                                .clip(CircleShape), contentScale = ContentScale.Crop
-                        )
+                ProfileHeader(modifier, user, navController, postsToDisplay.size, followerList.size, followingList.size)
+            }
 
-                        Icon(imageVector = Icons.Default.AddCircle,
-                            contentDescription = null,
-                            modifier = modifier
-                                .clickable {
-                                    navController.navigate(ProfileRouteScreen.AddStory.route)
-                                }
-                                .clip(CircleShape)
-                                .size(34.dp)
-                                .align(Alignment.BottomEnd), tint = Black
-                        )
-                    }
-
-                    Text(text = user.name, fontSize = 26.sp)
-                    Spacer(modifier = modifier.padding(top = 4.dp))
-                    Text(text = "@${user.userName}", fontSize = 16.sp)
-                    Row(
-                        modifier = modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-
-                        Button(
-                            onClick = {
-                                navController.navigate(
-                                    ProfileRouteScreen.EditProfile.route
-                                )
-                            },
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(40.dp))
-                                .padding(10.dp),
-                            elevation = ButtonDefaults.buttonElevation(10.dp),
-                            colors = ButtonColors(
-                                containerColor = Blue80,
-                                contentColor = Black,
-                                disabledContainerColor = Blue80,
-                                disabledContentColor = Black
-                            )
-                        ) {
-                            Text(
-                                text = "Edit Profile",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium, modifier = modifier.padding(
-                                    10.dp
-                                )
-                            )
-                        }
-
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Setting",
-                            modifier = modifier
-                                .size(30.dp)
-                                .clickable {
-                                    navController.navigate(
-                                        ProfileRouteScreen.Settings.route
-                                    )
-                                }
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Save,
-                            contentDescription = "Setting",
-                            modifier = modifier
-                                .size(30.dp)
-                                .clickable {
-                                    navController.navigate(
-                                        ProfileRouteScreen.SavedPosts.route
-                                    )
-                                }
-                        )
-
-
-                    }
-
-
-                    Row(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Column(
-                            modifier = modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Text(
-                                text = postsToDisplay.size.toString(),
-                                fontSize = 28.sp, fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                text = "posts",
-                                fontSize = 18.sp, fontWeight = FontWeight.Normal
-                            )
-                        }
-                        Column(
-                            modifier = modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Text(
-                                text = followerList?.size.toString(),
-                                fontSize = 28.sp, fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                text = "followers",
-                                fontSize = 18.sp, fontWeight = FontWeight.Normal
-                            )
-                        }
-                        Column(
-                            modifier = modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = followingList?.size.toString(),
-                                fontSize = 28.sp, fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                text = "following",
-                                fontSize = 18.sp, fontWeight = FontWeight.Normal
-                            )
-                        }
-                    }
-
-                    this@LazyColumn.items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
-                        PostItem(
-                            post = post,
-                            users = user,
-                            navController = navController,
-                            homeViewModel = homeViewModel
-                        )
-                    }
-                }
+            items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
+                PostItem(post = post, users = user, navController = navController, homeViewModel = homeViewModel)
             }
         }
-
-
-        LaunchedEffect(key1 = firebaseUser) {
-            if (firebaseUser == null) {
-
-                navController.navigate(
-                    AuthRouteScreen.Login.route
-                ) {
-                    popUpTo(MainRouteScreen.Profile.route) {
-                        inclusive = true
-                    }
-                }
-            } else {
-                Unit
-            }
-        }
-
     }
+}
 
+@Composable
+fun ProfileHeader(
+    modifier: Modifier,
+    user: UserModel,
+    navController: NavController,
+    postCount: Int,
+    followerCount: Int,
+    followingCount: Int
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Your Profile",
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = Blue40
+        )
+        Spacer(modifier = Modifier.padding(top = 20.dp))
+        ProfileImage(modifier, user.imageUrl, navController)
+        Text(text = user.name, fontSize = 26.sp)
+        Spacer(modifier = Modifier.padding(top = 4.dp))
+        Text(text = "@${user.userName}", fontSize = 16.sp)
+        ProfileActions(modifier, navController)
+        ProfileStats(modifier, postCount, followerCount, followingCount)
+    }
+}
+
+@Composable
+fun ProfileImage(
+    modifier: Modifier,
+    imageUrl: String,
+    navController: NavController
+) {
+    Box(modifier = modifier) {
+        Image(
+            painter = rememberAsyncImagePainter(model = imageUrl),
+            contentDescription = null,
+            modifier = Modifier
+                .size(120.dp)
+                .padding(2.dp)
+                .border(width = 4.dp, color = White, shape = CircleShape)
+                .padding(2.dp)
+                .border(width = 4.dp, color = Black, shape = CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+        Icon(
+            imageVector = Icons.Default.AddCircle,
+            contentDescription = null,
+            modifier = Modifier
+                .clickable { navController.navigate(ProfileRouteScreen.AddStory.route) }
+                .clip(CircleShape)
+                .size(34.dp)
+                .align(Alignment.BottomEnd),
+            tint = Black
+        )
+    }
+}
+
+@Composable
+fun ProfileActions(
+    modifier: Modifier,
+    navController: NavController
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Button(
+            onClick = { navController.navigate(ProfileRouteScreen.EditProfile.route) },
+            modifier = Modifier
+                .clip(RoundedCornerShape(40.dp))
+                .padding(10.dp),
+            elevation = ButtonDefaults.buttonElevation(10.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Blue80, contentColor = Black)
+        ) {
+            Text(text = "Edit Profile", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
+        Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "Settings",
+            modifier = Modifier
+                .size(30.dp)
+                .clickable { navController.navigate(ProfileRouteScreen.Settings.route) }
+        )
+        Icon(
+            imageVector = Icons.Default.Save,
+            contentDescription = "Saved Posts",
+            modifier = Modifier
+                .size(30.dp)
+                .clickable { navController.navigate(ProfileRouteScreen.SavedPosts.route) }
+        )
+    }
+}
+
+@Composable
+fun ProfileStats(
+    modifier: Modifier,
+    postCount: Int,
+    followerCount: Int,
+    followingCount: Int
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        ProfileStatItem(modifier, postCount, "posts")
+        ProfileStatItem(modifier, followerCount, "followers")
+        ProfileStatItem(modifier, followingCount, "following")
+    }
+}
+
+@Composable
+fun ProfileStatItem(
+    modifier: Modifier,
+    count: Int,
+    label: String
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = count.toString(), fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+        Text(text = label, fontSize = 18.sp, fontWeight = FontWeight.Normal)
+    }
 }

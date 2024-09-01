@@ -11,7 +11,7 @@ import com.example.friendzone.presentation.nav_main.MainScreen
 @Composable
 fun RootNavGraph() {
     val rootNavController: NavHostController = rememberNavController()
-
+    val homeNavController: NavHostController = rememberNavController()
     NavHost(
         navController = rootNavController,
         route = Graph.RootGraph,
@@ -29,6 +29,6 @@ fun RootNavGraph() {
         searchNavGraph(rootNavController = rootNavController)
 //        addPostNavGraph(rootNavController = rootNavController)
         chatNavGraph(rootNavController = rootNavController)
-        profileNavGraph(rootNavController = rootNavController)
+        profileNavGraph(rootNavController = rootNavController, homeNavController = homeNavController)
     }
 }

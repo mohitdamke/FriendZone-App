@@ -26,7 +26,7 @@ fun MainNavGraph(
         startDestination = MainRouteScreen.Home.route,
     ) {
         composable(route = MainRouteScreen.Home.route){
-            HomeScreen(navController = rootNavController)
+            HomeScreen(navController = rootNavController, homeNavController = homeNavController)
         }
 
         composable(route = MainRouteScreen.Search.route){

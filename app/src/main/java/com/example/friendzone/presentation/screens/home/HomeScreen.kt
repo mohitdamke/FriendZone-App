@@ -1,6 +1,8 @@
 package com.example.friendzone.presentation.screens.home
 
+import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,7 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,9 +19,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,10 +35,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,9 +50,11 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.PostItem
 import com.example.friendzone.common.UsersStoryHomeItem
 import com.example.friendzone.data.model.PostModel
+import com.example.friendzone.data.model.StoryModel
 import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.LocalCustomColors
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.search.SearchViewModel
@@ -50,10 +63,12 @@ import com.example.friendzone.viewmodel.story.StoryViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
+    homeNavController : NavController
 ) {
 
     val homeViewModel: HomeViewModel = viewModel()
@@ -70,6 +85,8 @@ fun HomeScreen(
         emptyList()
     )
     val storyAndUsers by storyViewModel.storyAndUsers.observeAsState(null)
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val customColors = LocalCustomColors.current
 
 
 
@@ -78,108 +95,128 @@ fun HomeScreen(
         userViewModel.fetchUsers(uid = currentUserId)
         searchViewModel.fetchUsersExcludingCurrentUser(currentUserId)
     }
-    Scaffold(modifier = modifier) { paddingValues ->
-        LazyColumn(
-            modifier = modifier
-                .padding(paddingValues)
-        ) {
-            item {
-                Column(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = customColors.primary,
+                    titleContentColor = customColors.surface,
+                    actionIconContentColor = customColors.surface,
+                    navigationIconContentColor = customColors.surface,
+                    scrolledContainerColor = customColors.primary
+                ),
+                title = {
                     Text(
                         text = "FriendZone",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        color = Blue40
+                        maxLines = 1,
+                        letterSpacing = 1.sp, fontSize = 38.sp,
+                        overflow = TextOverflow.Visible,
+                        fontStyle = FontStyle.Normal,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontFamily = FontFamily.SansSerif,
                     )
-                }
+                },
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(
+                            imageVector = Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Localized description",
+                            modifier = modifier.size(28.dp)
+                        )
+                    }
 
-                Spacer(modifier = modifier.padding(top = 20.dp))
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+    ) { paddingValues ->
 
-                Row(
-                    modifier = modifier.padding(4.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(customColors.primary),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (usersList?.isEmpty() == true) {
+                Column(
+                    modifier = modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-
-                    LazyRow(modifier = Modifier.padding(start = 4.dp)) {
+                    Text(text = "No Users Found", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                }
+            } else {
+                LazyColumn {
                         item {
-                            Column(
-                                modifier = modifier,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Box {
-                                    Image(painter = rememberAsyncImagePainter(
-                                        model = SharedPref.getImageUrl(
-                                            context
-                                        )
-                                    ),
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .clickable {
-                                                if (storyAndUsers != null && storyAndUsers!!.isNotEmpty()) {
-                                                    val routes =
-                                                        HomeRouteScreen.AllStory.route.replace(
-                                                            oldValue = "{all_story}",
-                                                            newValue = currentUserId
-                                                        )
-                                                    navController.navigate(routes)
-                                                } else {
-                                                    navController.navigate(HomeRouteScreen.AddStory.route)
-                                                }
-                                            }
-                                            .clip(CircleShape)
-                                            .border(
-                                                width = 4.dp,
-                                                color = Blue40,
-                                                shape = CircleShape
-                                            ), contentDescription = null,
-                                        contentScale = ContentScale.Crop)
-                                    Icon(imageVector = Icons.Default.AddCircle,
-                                        contentDescription = null,
-                                        modifier = modifier
-                                            .size(22.dp)
-                                            .clickable {
-                                                navController.navigate(HomeRouteScreen.AddStory.route)
-                                            }
-                                            .align(Alignment.BottomEnd))
-
-                                }
-                                Text(
-                                    text = "You",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                            StoryItem(
+                                navController = navController,
+                                usersList = usersList,
+                                storyAndUsers = storyAndUsers,
+                                currentUserId = currentUserId,
+                                context = context
+                            )
                         }
-                        item {
-                            Spacer(modifier = modifier.padding(start = 10.dp))
-                        }
-                        item {
-                            if (usersList != null && usersList!!.isNotEmpty()) {
-                                val filterItems = usersList!!.filter {
-                                    it.uid != FirebaseAuth.getInstance().currentUser!!.uid
-                                }
-                                this@LazyRow.items(filterItems) { pairs ->
-                                    UsersStoryHomeItem(
-                                        users = pairs,
-                                        navHostController = navController,
-                                    )
-                                }
-                            }
+
+                    items(postAndUsers) { pairs ->
+                        PostItem(
+                            post = pairs.first,
+                            users = pairs.second,
+                            navController = navController,
+                            navController2 = homeNavController,
+                            homeViewModel = homeViewModel
+                        )
                         }
                     }
                 }
+            }
+        }
 
-                this@LazyColumn.items(postAndUsers?: emptyList()) { pairs ->
-                    PostItem(
-                        post = pairs.first,
-                        users = pairs.second,
-                        navController = navController,
-                        homeViewModel = homeViewModel  // Pass the ViewModel here
+    }
+
+
+@Composable
+fun StoryItem(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    usersList: List<UserModel>?,
+    storyAndUsers: List<Pair<StoryModel, UserModel>>?,
+    currentUserId: String,
+    context: Context
+) {
+    Row(
+        modifier = modifier.padding(4.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LazyRow(modifier = Modifier.padding(start = 4.dp)) {
+            // Current User Story Item
+            item {
+                UserStory(
+                    modifier = modifier,
+                    imageUrl = SharedPref.getImageUrl(context),
+                    onClick = {
+                        val route = if (storyAndUsers.isNullOrEmpty()) {
+                            HomeRouteScreen.AddStory.route
+                        } else {
+                            HomeRouteScreen.AllStory.route.replace(
+                                "{all_story}", currentUserId
+                            )
+                        }
+                        navController.navigate(route)
+                    }
+                )
+            }
+            // Spacer between items
+            item { Spacer(modifier = Modifier.padding(start = 10.dp)) }
+            // Other Users' Stories
+            if (!usersList.isNullOrEmpty()) {
+                items(usersList.filter { it.uid != FirebaseAuth.getInstance().currentUser!!.uid }) { user ->
+                    UsersStoryHomeItem(
+                        users = user,
+                        navHostController = navController
                     )
                 }
             }
@@ -187,5 +224,125 @@ fun HomeScreen(
     }
 }
 
+@Composable
+fun UserStory(
+    modifier: Modifier = Modifier,
+    imageUrl: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box {
+            Image(
+                painter = rememberAsyncImagePainter(model = imageUrl),
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .border(4.dp, Blue40, CircleShape)
+                    .clickable { onClick() },
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Icon(
+                imageVector = Icons.Default.AddCircle,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(22.dp)
+                    .align(Alignment.BottomEnd)
+                    .clickable { onClick() }
+            )
+        }
+        Text(
+            text = "You",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
 
 
+
+
+
+//
+//@Composable
+//fun fStoryItem(modifier: Modifier = Modifier) {
+//
+//    Row(
+//        modifier = modifier.padding(4.dp),
+//        horizontalArrangement = Arrangement.Center,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//
+//        LazyRow(modifier = Modifier.padding(start = 4.dp)) {
+//            item {
+//                Column(
+//                    modifier = modifier,
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Box {
+//                        Image(painter = rememberAsyncImagePainter(
+//                            model = SharedPref.getImageUrl(
+//                                context
+//                            )
+//                        ),
+//                            modifier = Modifier
+//                                .size(80.dp)
+//                                .clickable {
+//                                    if (storyAndUsers != null && storyAndUsers!!.isNotEmpty()) {
+//                                        val routes =
+//                                            HomeRouteScreen.AllStory.route.replace(
+//                                                oldValue = "{all_story}",
+//                                                newValue = currentUserId
+//                                            )
+//                                        navController.navigate(routes)
+//                                    } else {
+//                                        navController.navigate(HomeRouteScreen.AddStory.route)
+//                                    }
+//                                }
+//                                .clip(CircleShape)
+//                                .border(
+//                                    width = 4.dp,
+//                                    color = Blue40,
+//                                    shape = CircleShape
+//                                ), contentDescription = null,
+//                            contentScale = ContentScale.Crop)
+//                        Icon(imageVector = Icons.Default.AddCircle,
+//                            contentDescription = null,
+//                            modifier = modifier
+//                                .size(22.dp)
+//                                .clickable {
+//                                    navController.navigate(HomeRouteScreen.AddStory.route)
+//                                }
+//                                .align(Alignment.BottomEnd))
+//
+//                    }
+//                    Text(
+//                        text = "You",
+//                        fontSize = 16.sp,
+//                        fontWeight = FontWeight.Medium
+//                    )
+//                }
+//            }
+//            item {
+//                Spacer(modifier = modifier.padding(start = 10.dp))
+//            }
+//            item {
+//                if (usersList != null && usersList!!.isNotEmpty()) {
+//                    val filterItems = usersList!!.filter {
+//                        it.uid != FirebaseAuth.getInstance().currentUser!!.uid
+//                    }
+//                    this@LazyRow.items(filterItems) { pairs ->
+//                        UsersStoryHomeItem(
+//                            users = pairs,
+//                            navHostController = navController,
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+//

@@ -35,7 +35,7 @@ fun NavGraphBuilder.homeNavGraph(rootNavController: NavHostController) {
         composable(
             route = HomeRouteScreen.OtherProfile.route
         ) {
-            val data = it.arguments!!.getString("data")
+            val data = it.arguments!!.getString("other_profile")
             OtherUsers(navController = rootNavController, uid = data!!)
         }
     }

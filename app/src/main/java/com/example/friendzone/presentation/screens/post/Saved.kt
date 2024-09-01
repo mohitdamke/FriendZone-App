@@ -26,7 +26,7 @@ import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun Saved(modifier: Modifier = Modifier, navController: NavController) {
+fun Saved(modifier: Modifier = Modifier, navController: NavController,homeNavController : NavController) {
     val homeViewModel: HomeViewModel = viewModel()
     val userId = FirebaseAuth.getInstance().currentUser!!.uid
 
@@ -63,7 +63,9 @@ fun Saved(modifier: Modifier = Modifier, navController: NavController) {
                                 post = post,
                                 users = it,
                                 navController = navController,
-                                homeViewModel = homeViewModel
+                                homeViewModel = homeViewModel,
+                                navController2 = homeNavController,
+
                             )
                         }
                     }

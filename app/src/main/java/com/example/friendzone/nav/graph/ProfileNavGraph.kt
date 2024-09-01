@@ -3,6 +3,7 @@ package com.example.friendzone.nav.graph
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.nav.routes.HomeRouteScreen
@@ -13,7 +14,10 @@ import com.example.friendzone.presentation.screens.profile.EditProfile
 import com.example.friendzone.presentation.screens.profile.Setting
 import com.example.friendzone.presentation.screens.story.AddStory
 
-fun NavGraphBuilder.profileNavGraph(rootNavController: NavHostController) {
+fun NavGraphBuilder.profileNavGraph(
+    rootNavController: NavHostController,
+    homeNavController: NavHostController
+) {
     navigation(
         route = Graph.ProfileGraph, startDestination = ProfileRouteScreen.AddStory.route
     ) {
@@ -35,7 +39,7 @@ fun NavGraphBuilder.profileNavGraph(rootNavController: NavHostController) {
         composable(
             route = ProfileRouteScreen.SavedPosts.route
         ) {
-            Saved(navController = rootNavController)
+            Saved(navController = rootNavController, homeNavController = homeNavController)
         }
     }
 }
