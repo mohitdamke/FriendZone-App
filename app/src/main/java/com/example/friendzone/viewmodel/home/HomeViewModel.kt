@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.friendzone.data.model.CommentModel
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.UserModel
@@ -13,55 +14,44 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.launch
 
-class HomeViewModel() : ViewModel() {
-
+class HomeViewModel : ViewModel() {
 
     private val db = FirebaseDatabase.getInstance()
     private val postRef = db.getReference("posts")
 
-    private var _postsAndUsers = MutableLiveData<List<Pair<PostModel, UserModel>>>()
+    private val _postsAndUsers = MutableLiveData<List<Pair<PostModel, UserModel>>>()
     val postsAndUsers: LiveData<List<Pair<PostModel, UserModel>>> = _postsAndUsers
 
-    private var _savedPost = MutableLiveData<List<PostModel>>()
-    val savedPost: LiveData<List<PostModel>> = _savedPost
-
-    private val _savedPostIds = MutableLiveData<List<String>>()
+    private val _savedPostIds = MutableLiveData<List<String>>(emptyList())
     val savedPostIds: LiveData<List<String>> = _savedPostIds
 
-    private var postsMap = mutableMapOf<String, Pair<PostModel, UserModel>>()
-
-    private var _hasMoreData = MutableLiveData(true)
-    val hasMoreData: LiveData<Boolean> = _hasMoreData
-
-    private var _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {
+        fetchPostsAndUsers()
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        currentUserId?.let { fetchSavedPosts(it) }
 
-        fetchPostsAndUsers { it ->
-            _postsAndUsers.value = it
-        }
-        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        fetchSavedPost(currentUserId)
     }
 
-
-    private fun fetchPostsAndUsers(onResult: (List<Pair<PostModel, UserModel>>) -> Unit) {
-
-        postRef.addListenerForSingleValueEvent(object : ValueEventListener {
-
+    private fun fetchPostsAndUsers() {
+        postRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
-                val result = mutableListOf<Pair<PostModel, UserModel>>()
-                for (postSnapshot in snapshot.children) {
-
-                    val post: PostModel? = postSnapshot.getValue(PostModel::class.java)
-                    post?.let {
-                        fetchUserFromPost(it) { user ->
-                            result.add(index = 0, element = Pair(it, user))
-                            if (result.size == snapshot.childrenCount.toInt()) {
-                                onResult(result)
+                viewModelScope.launch {
+                    val result = mutableListOf<Pair<PostModel, UserModel>>()
+                    val postChildren = snapshot.children.toList()
+                    postChildren.forEach { postSnapshot ->
+                        val post = postSnapshot.getValue(PostModel::class.java)
+                        post?.let { it ->
+                            fetchUserFromPost(it) { user ->
+                                result.add(element = Pair(it, user))
+                                if (result.size == postChildren.size) {
+                                    result.sortByDescending { it.first.timeStamp.toLong() }
+                                    _postsAndUsers.value = result
+                                }
                             }
                         }
                     }
@@ -69,40 +59,46 @@ class HomeViewModel() : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                // Handle error
             }
         })
     }
+
 
     private fun fetchUserFromPost(post: PostModel, onResult: (UserModel) -> Unit) {
         db.getReference("users").child(post.userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val user: UserModel? = snapshot.getValue(UserModel::class.java)
-                    user?.let(onResult)
-//                    user?.let { onResult(it) }
+                    viewModelScope.launch {
+                        val user = snapshot.getValue(UserModel::class.java)
+                        user?.let(onResult)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    // Handle error
                 }
             })
     }
 
     fun toggleLike(postId: String, userId: String) {
         val postRef = postRef.child(postId)
-
-        postRef.child("likes").child(userId).get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
-                // If the user has already liked the post, remove the like
-                postRef.child("likes").child(userId).removeValue()
-            } else {
-                // If the user has not liked the post, add the like
-                postRef.child("likes").child(userId).setValue(true)
+        viewModelScope.launch {
+            postRef.child("likes").child(userId).get().addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    // Remove the like
+                    postRef.child("likes").child(userId).removeValue().addOnCompleteListener {
+                        fetchPostsAndUsers()
+                    }
+                } else {
+                    // Add the like
+                    postRef.child("likes").child(userId).setValue(true).addOnCompleteListener {
+                        fetchPostsAndUsers()
+                    }
+                }
             }
         }
     }
-
 
     fun addComment(
         postId: String,
@@ -116,64 +112,16 @@ class HomeViewModel() : ViewModel() {
         val postRef = db.getReference("posts").child(postId)
         postRef.child("comments").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val commentsList = mutableListOf<CommentModel>()
-                snapshot.children.mapNotNullTo(commentsList) { it.getValue(CommentModel::class.java) }
-
-                val newComment = CommentModel(
-                    userId = userId, username = username,
-                    name = name, text = commentText, image = image, timestamp = timeStamp
-                )
-                commentsList.add(newComment)
-
-                postRef.child("comments").setValue(commentsList)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle error
-            }
-        })
-    }
-
-
-    fun fetchComments(postId: String, onResult: (List<CommentModel>) -> Unit) {
-        val postRef =
-            FirebaseDatabase.getInstance().getReference("posts").child(postId).child("comments")
-        postRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val comments =
+                val commentsList =
                     snapshot.children.mapNotNull { it.getValue(CommentModel::class.java) }
-                onResult(comments)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Handle error
-            }
-        })
-    }
-
-    fun toggleSavePost(postId: String, context: Context) {
-        val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-        val userRef = db.getReference("users").child(currentUserId).child("savedPost")
-
-        userRef.child(postId).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // Post is already saved, unsave it
-                    userRef.child(postId).removeValue()
-                    // Remove postId from the saved post IDs list
-                    _savedPostIds.value = _savedPostIds.value?.filter { it != postId }
-                    Toast.makeText(
-                        context,
-                        "Post Has Been Removed from Saved",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    // Post is not saved, save it
-                    userRef.child(postId).setValue(true)
-                    // Add postId to the saved post IDs list
-                    _savedPostIds.value = _savedPostIds.value?.plus(postId) ?: listOf(postId)
-                    Toast.makeText(context, "Post Has Been Saved", Toast.LENGTH_SHORT).show()
-
+                        .toMutableList()
+                viewModelScope.launch {
+                    val newComment = CommentModel(
+                        userId = userId, username = username,
+                        name = name, text = commentText, image = image, timestamp = timeStamp
+                    )
+                    commentsList.add(newComment)
+                    postRef.child("comments").setValue(commentsList)
                 }
             }
 
@@ -183,15 +131,77 @@ class HomeViewModel() : ViewModel() {
         })
     }
 
+    fun fetchComments(postId: String, onResult: (List<CommentModel>) -> Unit) {
+        val postRef = db.getReference("posts").child(postId).child("comments")
+        postRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                viewModelScope.launch {
+                    val comments =
+                        snapshot.children.mapNotNull { it.getValue(CommentModel::class.java) }
+                    onResult(comments)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+    }
+
+    private fun fetchSavedPosts(currentUserId: String) {
+        val userRef = db.getReference("users").child(currentUserId).child("savedPosts")
+        userRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val savedPosts = snapshot.children.mapNotNull { it.key }
+                _savedPostIds.value = savedPosts
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error
+            }
+        })
+    }
+
+    fun toggleSavePost(context: Context, postId: String, currentUserId: String) {
+        val userRef = db.getReference("users").child(currentUserId).child("savedPosts")
+        viewModelScope.launch {
+            val isSaved = _savedPostIds.value?.contains(postId) == true
+            if (isSaved) {
+                userRef.child(postId).removeValue().addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        _savedPostIds.value = _savedPostIds.value?.filter { it != postId }
+                        Toast.makeText(
+                            context,
+                            "Post Has Been Removed from Saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } else {
+                userRef.child(postId).setValue(true).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        _savedPostIds.value = _savedPostIds.value?.plus(postId) ?: listOf(postId)
+                        Toast.makeText(
+                            context,
+                            "Post Has Been Saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+        }
+    }
+
     fun fetchSavedPost(userId: String): LiveData<List<PostModel>> {
         val savedPostLiveData = MutableLiveData<List<PostModel>>()
-
-        db.getReference("users").child(userId).child("savedPost")
+        db.getReference("users").child(userId).child("savedPosts")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val postIds = snapshot.children.mapNotNull { it.key }
-                    fetchPostByIds(postIds) { posts ->
-                        savedPostLiveData.value = posts
+                    viewModelScope.launch {
+                        val postIds = snapshot.children.mapNotNull { it.key }
+                        fetchPostByIds(postIds) { posts ->
+                            savedPostLiveData.value = posts
+                        }
                     }
                 }
 
@@ -199,17 +209,18 @@ class HomeViewModel() : ViewModel() {
                     // Handle error
                 }
             })
-
         return savedPostLiveData
     }
 
     private fun fetchPostByIds(postIds: List<String>, onResult: (List<PostModel>) -> Unit) {
         db.getReference("posts").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val posts = postIds.mapNotNull { id ->
-                    snapshot.child(id).getValue(PostModel::class.java)
+                viewModelScope.launch {
+                    val posts = postIds.mapNotNull { id ->
+                        snapshot.child(id).getValue(PostModel::class.java)
+                    }
+                    onResult(posts)
                 }
-                onResult(posts)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -223,8 +234,10 @@ class HomeViewModel() : ViewModel() {
         db.getReference("users").child(userId)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val user = snapshot.getValue(UserModel::class.java)
-                    userLiveData.value = user ?: UserModel()
+                    viewModelScope.launch {
+                        val user = snapshot.getValue(UserModel::class.java)
+                        userLiveData.value = user ?: UserModel()
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -233,7 +246,4 @@ class HomeViewModel() : ViewModel() {
             })
         return userLiveData
     }
-
-
 }
-

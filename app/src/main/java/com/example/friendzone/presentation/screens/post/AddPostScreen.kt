@@ -9,14 +9,15 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -24,10 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,31 +70,26 @@ import com.google.firebase.database.FirebaseDatabase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
-
-    val addPostViewModel: PostViewModel = viewModel()
-    val isPosted by addPostViewModel.isPosted.observeAsState(false)
+    val postViewModel: PostViewModel = viewModel()
+    val isPosted by postViewModel.isPosted.observeAsState(false)
 
     val db = FirebaseDatabase.getInstance()
     val postRef = db.getReference("posts")
 
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var post by rememberSaveable { mutableStateOf("") }
-
     var imageUris by rememberSaveable { mutableStateOf<List<Uri>>(emptyList()) }
 
     LaunchedEffect(isPosted) {
         if (isPosted) {
             post = ""
             imageUris = emptyList()
-            Toast.makeText(
-                context, "Post have been Successfully Uploaded", Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(context, "Post has been successfully uploaded", Toast.LENGTH_SHORT).show()
             navController.navigateUp()
         }
     }
-
 
     val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         android.Manifest.permission.READ_MEDIA_IMAGES
@@ -103,16 +97,11 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     }
 
-    val imageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri>? ->
+    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         imageUris = uris ?: emptyList()
     }
 
-
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             imageLauncher.launch("image/*")
         } else {
@@ -122,180 +111,155 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-            ), title = {
-                Text(
-                    "Make a post",
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = Blue40,
-                    modifier = modifier.padding(start = 100.dp)
-                )
-            }, navigationIcon = {
-
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    modifier = modifier
-                        .size(30.dp)
-                        .clickable {
-                            navController.navigateUp()
-
-                        },
-                    tint = Blue40
-                )
-
-            })
-        }, modifier = modifier.fillMaxSize()
-    ) { padding ->
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                IconButton(onClick = { /* TODO something */ }) {
-                    Image(
-                        painter = rememberAsyncImagePainter(model = SharedPref.getImageUrl(context)),
-                        contentDescription = null, modifier = modifier
-                            .size(44.dp)
-                            .clip(CircleShape), contentScale = ContentScale.Crop
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                title = {
+                    Text(
+                        "Make a Post",
+                        fontSize = 30.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = Blue40,
+                        modifier = modifier.padding(start = 100.dp)
                     )
-                }
-                Spacer(modifier = Modifier.padding(start = 10.dp))
-                Text(
-                    text = SharedPref.getUserName(context),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal
-                )
-                Spacer(modifier = Modifier.padding(start = 100.dp))
-
-                Button(
-                    onClick = {
-
+                },
+                actions = {
+                    IconButton(onClick = {
                         if (post.isEmpty()) {
                             Toast.makeText(context, "Enter Title", Toast.LENGTH_SHORT).show()
-                            return@Button
+                            return@IconButton
                         }
-                        val storeKey = postRef.push().key ?: return@Button
+
+                        val storeKey = postRef.push().key ?: return@IconButton
 
                         if (imageUris.isEmpty()) {
-
-                            addPostViewModel.saveData(
+                            postViewModel.saveData(
                                 post = post,
                                 userId = FirebaseAuth.getInstance().currentUser!!.uid,
                                 storeKey = storeKey,
-                                images = emptyList(),
+                                images = emptyList()
                             )
                         } else {
-                            addPostViewModel.saveImages(
+                            postViewModel.saveImages(
                                 post = post,
                                 userId = FirebaseAuth.getInstance().currentUser!!.uid,
                                 imageUris = imageUris
                             )
                         }
-                    }, modifier = modifier
-                        .fillMaxWidth()
-                        .padding(4.dp), colors = ButtonColors(
-                        contentColor = Color.White,
-                        containerColor = Blue40,
-                        disabledContentColor = Color.Gray,
-                        disabledContainerColor = Blue40
-                    ), shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(
-                        text = "Post", fontSize = 18.sp, modifier = modifier.padding(6.dp)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = "Send",
+                            tint = Blue40
+                        )
+                    }
+                }
+            )
+        },
+        modifier = modifier.fillMaxSize()
+    ) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { /* TODO: Handle profile image click */ }) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = SharedPref.getImageUrl(context)),
+                        contentDescription = null,
+                        modifier = modifier
+                            .size(44.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                 }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = SharedPref.getUserName(context),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal
+                )
+                Spacer(modifier = Modifier.weight(1f))
             }
-            Spacer(modifier = modifier.padding(top = 10.dp))
-            OutlinedTextField(keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
-            ),
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedTextField(
                 value = post,
                 onValueChange = { post = it },
                 label = { Text("Enter Title") },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done
+                ),
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 20.dp)
+                    .padding(horizontal = 16.dp, vertical = 20.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 trailingIcon = {
-                    Icon(imageVector = Icons.Default.AddAPhoto,
-                        contentDescription = null,
+                    Icon(
+                        imageVector = Icons.Default.AddAPhoto,
+                        contentDescription = "Add Photo",
                         modifier = modifier
-                            .padding(10.dp)
                             .size(30.dp)
                             .clickable {
                                 val isGranted = ContextCompat.checkSelfPermission(
-                                    context, permissionToRequest
+                                    context,
+                                    permissionToRequest
                                 ) == PackageManager.PERMISSION_GRANTED
 
                                 if (isGranted) {
                                     imageLauncher.launch("image/*")
-                                    Log.i("TAG", "image is been loading")
+                                    Log.i("TAG", "Image is being loaded")
                                 } else {
                                     permissionLauncher.launch(permissionToRequest)
-                                    Log.i("TAG", "image is not loading")
-
+                                    Log.i("TAG", "Image permission is not granted")
                                 }
-                            })
-                })
-            LazyColumn(
-                modifier = Modifier.padding(10.dp)
-            ) {
-                item {
-                    if (imageUris.isNotEmpty()) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                model = imageUris,
-                            ),
-                            contentDescription = null,
-                            modifier = modifier
-                                .fillMaxWidth()
-                                .size(200.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Unit
-                    }
+                            }
+                    )
                 }
-                item {
-                    Box(
-                        modifier = Modifier, contentAlignment = Alignment.Center
-                    ) {
-                        if (imageUris.isNotEmpty()) {
-                            Icon(imageVector = Icons.Default.Clear,
-                                contentDescription = "Close Icon",
-                                tint = Color.Black,
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .clickable {
-                                        imageUris = emptyList()
-                                    }
-                                    .align(Alignment.TopEnd))
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Clear Button
+            if (imageUris.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear Images",
+                    tint = Color.Black,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clickable {
+                            imageUris = emptyList()
+                            Log.i("TAG", "Cleared image URIs")
                         }
-                        this@LazyColumn.items(imageUris) { uri ->
-                            Image(painter = rememberAsyncImagePainter(model = uri),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(vertical = 8.dp)
-                                    .fillMaxWidth()
-                                    .size(150.dp)
-                                    .clip(RectangleShape)
-                                    .clickable {
-                                        imageUris = imageUris.filter { it != uri }
-                                    })
-                        }
-                    }
+                        .padding(10.dp)
+                )
+            }
+
+            // Image List
+            LazyColumn(modifier = Modifier.padding(10.dp)) {
+                items(imageUris) { uri ->
+                    Image(
+                        painter = rememberAsyncImagePainter(model = uri),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth()
+                            .size(150.dp)
+                            .clip(RectangleShape)
+                            .clickable {
+                                imageUris = imageUris.filter { it != uri }
+                                Log.i("TAG", "Image removed: $uri")
+                            }
+                    )
                 }
             }
         }

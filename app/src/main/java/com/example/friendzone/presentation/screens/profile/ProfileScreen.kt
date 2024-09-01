@@ -72,18 +72,20 @@ fun ProfileScreen(
     val followerList by userViewModel.followerList.observeAsState(emptyList())
     val followingList by userViewModel.followingList.observeAsState(emptyList())
     val savedThreadIds by homeViewModel.savedPostIds.observeAsState(emptyList())
+    val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
 
-    LaunchedEffect(firebaseUser) {
-        firebaseUser?.uid?.let { userId ->
-            userViewModel.fetchPosts(userId)
-            userViewModel.getFollowers(userId)
-            userViewModel.getFollowing(userId)
-            homeViewModel.fetchSavedPost(userId)
+    LaunchedEffect(Unit) {
+            userViewModel.fetchPosts(currentUserId)
+            userViewModel.getFollowers(currentUserId)
+            userViewModel.getFollowing(currentUserId)
+            homeViewModel.fetchSavedPost(currentUserId)
         }
-    }
 
-    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
-    val postsToDisplay = posts.filter { it.userId == currentUserId }
+
+    val postsToDisplay = posts
+        .filter { it.userId == currentUserId }
+        .sortedByDescending { it.timeStamp.toLong() }
+
     val savedPostsToDisplay = postsToDisplay.filter { savedThreadIds.contains(it.userId) }
     val unsavedPostsToDisplay = postsToDisplay.filter { !savedThreadIds.contains(it.userId) }
 
@@ -110,11 +112,23 @@ fun ProfileScreen(
                 .padding(paddingValues)
         ) {
             item {
-                ProfileHeader(modifier, user, navController, postsToDisplay.size, followerList.size, followingList.size)
+                ProfileHeader(
+                    modifier = modifier,
+                    user = user,
+                    navController = navController,
+                    postCount = postsToDisplay.size,
+                    followerCount = followerList.size,
+                    followingCount = followingList.size
+                )
             }
 
             items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
-                PostItem(post = post, users = user, navController = navController, homeViewModel = homeViewModel)
+                PostItem(
+                    post = post,
+                    users = user,
+                    navController = navController,
+                    homeViewModel = homeViewModel
+                )
             }
         }
     }

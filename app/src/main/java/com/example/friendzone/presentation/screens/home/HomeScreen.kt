@@ -88,11 +88,9 @@ fun HomeScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val customColors = LocalCustomColors.current
 
-
-
-
-    LaunchedEffect(key1 = Unit) {
-        userViewModel.fetchUsers(uid = currentUserId)
+    LaunchedEffect(Unit) {
+        userViewModel.fetchPosts(currentUserId)
+        userViewModel.fetchUsers(currentUserId)
         searchViewModel.fetchUsersExcludingCurrentUser(currentUserId)
     }
 
@@ -117,16 +115,6 @@ fun HomeScreen(
                         fontWeight = FontWeight.ExtraBold,
                         fontFamily = FontFamily.SansSerif,
                     )
-                },
-                actions = {
-                    IconButton(onClick = { }) {
-                        Icon(
-                            imageVector = Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Localized description",
-                            modifier = modifier.size(28.dp)
-                        )
-                    }
-
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -187,7 +175,7 @@ fun StoryItem(
     context: Context
 ) {
     Row(
-        modifier = modifier.padding(4.dp),
+        modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -262,87 +250,3 @@ fun UserStory(
     }
 }
 
-
-
-
-
-//
-//@Composable
-//fun fStoryItem(modifier: Modifier = Modifier) {
-//
-//    Row(
-//        modifier = modifier.padding(4.dp),
-//        horizontalArrangement = Arrangement.Center,
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//
-//        LazyRow(modifier = Modifier.padding(start = 4.dp)) {
-//            item {
-//                Column(
-//                    modifier = modifier,
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    Box {
-//                        Image(painter = rememberAsyncImagePainter(
-//                            model = SharedPref.getImageUrl(
-//                                context
-//                            )
-//                        ),
-//                            modifier = Modifier
-//                                .size(80.dp)
-//                                .clickable {
-//                                    if (storyAndUsers != null && storyAndUsers!!.isNotEmpty()) {
-//                                        val routes =
-//                                            HomeRouteScreen.AllStory.route.replace(
-//                                                oldValue = "{all_story}",
-//                                                newValue = currentUserId
-//                                            )
-//                                        navController.navigate(routes)
-//                                    } else {
-//                                        navController.navigate(HomeRouteScreen.AddStory.route)
-//                                    }
-//                                }
-//                                .clip(CircleShape)
-//                                .border(
-//                                    width = 4.dp,
-//                                    color = Blue40,
-//                                    shape = CircleShape
-//                                ), contentDescription = null,
-//                            contentScale = ContentScale.Crop)
-//                        Icon(imageVector = Icons.Default.AddCircle,
-//                            contentDescription = null,
-//                            modifier = modifier
-//                                .size(22.dp)
-//                                .clickable {
-//                                    navController.navigate(HomeRouteScreen.AddStory.route)
-//                                }
-//                                .align(Alignment.BottomEnd))
-//
-//                    }
-//                    Text(
-//                        text = "You",
-//                        fontSize = 16.sp,
-//                        fontWeight = FontWeight.Medium
-//                    )
-//                }
-//            }
-//            item {
-//                Spacer(modifier = modifier.padding(start = 10.dp))
-//            }
-//            item {
-//                if (usersList != null && usersList!!.isNotEmpty()) {
-//                    val filterItems = usersList!!.filter {
-//                        it.uid != FirebaseAuth.getInstance().currentUser!!.uid
-//                    }
-//                    this@LazyRow.items(filterItems) { pairs ->
-//                        UsersStoryHomeItem(
-//                            users = pairs,
-//                            navHostController = navController,
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//

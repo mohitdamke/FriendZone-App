@@ -22,23 +22,25 @@ import com.google.firebase.auth.FirebaseAuth
 fun CommentsScreen(
     navController: NavController,
     postId: String,
-    viewModel: HomeViewModel = HomeViewModel()
+    viewModel: HomeViewModel = HomeViewModel(),
 ) {
     val context = LocalContext.current
     var comments by remember { mutableStateOf(listOf<CommentModel>()) }
 
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     LaunchedEffect(postId) {
-        viewModel.fetchComments(postId) {
-            comments = it
+        viewModel.fetchComments(postId) { fetchedComments ->
+            comments = fetchedComments
         }
     }
+
+    val commentSize = comments?.size?.toString() ?: 0
     Column(modifier = Modifier.fillMaxSize()) {
 
         Comments(
             comments = comments,
 
-        ) { commentText ->
+            ) { commentText ->
             val newComment = CommentModel(
                 userId = FirebaseAuth.getInstance().currentUser!!.uid,
                 text = commentText
@@ -52,6 +54,7 @@ fun CommentsScreen(
                 image = SharedPref.getImageUrl(context),
                 timeStamp = System.currentTimeMillis().toString()
             )
+            comments = comments + newComment
         }
     }
 }

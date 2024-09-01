@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -19,21 +20,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.friendzone.common.PostItem
 import com.example.friendzone.ui.theme.Blue40
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun Saved(modifier: Modifier = Modifier, navController: NavController,homeNavController : NavController) {
+fun SavedScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    homeNavController: NavController
+) {
     val homeViewModel: HomeViewModel = viewModel()
     val userId = FirebaseAuth.getInstance().currentUser!!.uid
 
+    // Fetch saved posts from the ViewModel
     val savedPosts by homeViewModel.fetchSavedPost(userId).observeAsState(emptyList())
 
-    Scaffold { paddingValues ->
+    LaunchedEffect(userId) {
+        homeViewModel.fetchSavedPost(userId)
+    }
 
+    Scaffold { paddingValues ->
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -64,8 +72,7 @@ fun Saved(modifier: Modifier = Modifier, navController: NavController,homeNavCon
                                 users = it,
                                 navController = navController,
                                 homeViewModel = homeViewModel,
-                                navController2 = homeNavController,
-
+                                navController2 = homeNavController
                             )
                         }
                     }

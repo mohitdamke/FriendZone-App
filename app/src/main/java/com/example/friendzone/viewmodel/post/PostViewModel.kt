@@ -1,6 +1,7 @@
 ﻿package com.example.friendzone.viewmodel.post
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -39,15 +40,18 @@ class PostViewModel() : ViewModel() {
         // Wait for all uploads to complete
         Tasks.whenAllComplete(uploadTasks).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val imageUris = uploadTasks.map { it.result.toString() }
+                val imageUri = uploadTasks.map { it.result.toString() }
                 saveData(
                     post = post,
                     userId = userId,
                     storeKey = storyKey,
-                    images = imageUris
+                    images = imageUri
                 )
             } else {
                 _isPosted.value = false
+                task.exception?.let { ex ->
+                    Log.e("PostViewModel", "Image upload failed", ex)
+                }
             }
         }
     }
@@ -73,6 +77,7 @@ class PostViewModel() : ViewModel() {
             _isPosted.value = true
         }.addOnFailureListener {
             _isPosted.value = false
+            Log.e("PostViewModel", "Data save failed")
         }
     }
 }
