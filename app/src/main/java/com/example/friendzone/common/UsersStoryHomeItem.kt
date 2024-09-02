@@ -21,9 +21,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.data.model.UserModel
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.ui.theme.Blue40
 import com.example.friendzone.ui.theme.PurpleGrey80
+import com.example.friendzone.ui.theme.White
+import com.example.friendzone.ui.theme.brushAddPost
 
 @Composable
 fun UsersStoryHomeItem(
@@ -42,11 +46,9 @@ fun UsersStoryHomeItem(
             painter = rememberAsyncImagePainter(model = users.imageUrl),
             contentDescription = null,
             modifier = Modifier
-                .size(80.dp)
+                .size(70.dp)
                 .clip(CircleShape)
-                .border(width = 4.dp,
-                    color = Blue40,
-                    shape = CircleShape)
+                .border(width = 4.dp, brush =  brushAddPost, shape = CircleShape)
                 .clickable {
                     val routes = HomeRouteScreen.AllStory.route.replace("{all_story}", users.uid)
                     navHostController.navigate(routes)
@@ -56,10 +58,12 @@ fun UsersStoryHomeItem(
         )
         Text(
             text = users.userName,
-            fontSize = 16.sp,
+            fontSize = TextDim.tertiaryTextSize,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
-            maxLines = 1
+            fontFamily = FontDim.Medium,
+            maxLines = 1,
+            color = White
         )
     }
 }

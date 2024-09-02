@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +36,16 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.LightGray
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,14 +55,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.friendzone.R
 import com.example.friendzone.common.PostItem
+import com.example.friendzone.common.StoryItem
 import com.example.friendzone.common.UsersStoryHomeItem
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.StoryModel
 import com.example.friendzone.data.model.UserModel
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
+import com.example.friendzone.ui.theme.Black
 import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.LocalCustomColors
+import com.example.friendzone.ui.theme.White
+import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.search.SearchViewModel
@@ -68,7 +84,7 @@ import com.google.firebase.auth.FirebaseAuth
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
-    homeNavController : NavController
+    homeNavController: NavController
 ) {
 
     val homeViewModel: HomeViewModel = viewModel()
@@ -76,7 +92,7 @@ fun HomeScreen(
     val addStoryViewModel: AddStoryViewModel = viewModel()
     val searchViewModel: SearchViewModel = viewModel()
     val usersList by searchViewModel.userList.observeAsState(null)
-    val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     val userViewModel: UserViewModel = viewModel()
 
     val context = LocalContext.current
@@ -85,8 +101,7 @@ fun HomeScreen(
         emptyList()
     )
     val storyAndUsers by storyViewModel.storyAndUsers.observeAsState(null)
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
-    val customColors = LocalCustomColors.current
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     LaunchedEffect(Unit) {
         userViewModel.fetchPosts(currentUserId)
@@ -99,21 +114,20 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = customColors.primary,
-                    titleContentColor = customColors.surface,
-                    actionIconContentColor = customColors.surface,
-                    navigationIconContentColor = customColors.surface,
-                    scrolledContainerColor = customColors.primary
+                    containerColor = DarkBlack,
+                    titleContentColor = White,
+                    actionIconContentColor = White,
+                    navigationIconContentColor = White,
+                    scrolledContainerColor = DarkBlack
                 ),
                 title = {
                     Text(
-                        text = "FriendZone",
+                        text = "Hello, ${SharedPref.getName(context)}",
                         maxLines = 1,
-                        letterSpacing = 1.sp, fontSize = 38.sp,
+                        letterSpacing = 1.sp,
+                        fontSize = TextDim.titleTextSize,
                         overflow = TextOverflow.Visible,
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.ExtraBold,
-                        fontFamily = FontFamily.SansSerif,
+                        fontFamily = FontDim.Bold,
                     )
                 },
                 scrollBehavior = scrollBehavior
@@ -125,10 +139,11 @@ fun HomeScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(customColors.primary),
+                .background(DarkBlack),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (usersList?.isEmpty() == true) {
+            Spacer(modifier = modifier.padding(top = 10.dp))
+            if (usersList.isNullOrEmpty()) {
                 Column(
                     modifier = modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -138,16 +153,18 @@ fun HomeScreen(
                 }
             } else {
                 LazyColumn {
-                        item {
-                            StoryItem(
-                                navController = navController,
-                                usersList = usersList,
-                                storyAndUsers = storyAndUsers,
-                                currentUserId = currentUserId,
-                                context = context
-                            )
-                        }
-
+                    item {
+                        StoryItem(
+                            navController = navController,
+                            usersList = usersList,
+                            storyAndUsers = storyAndUsers,
+                            currentUserId = currentUserId,
+                            context = context
+                        )
+                    }
+                    item {
+                        Divider(modifier = modifier.padding(top = 10.dp), color = Gray)
+                    }
                     items(postAndUsers) { pairs ->
                         PostItem(
                             post = pairs.first,
@@ -156,14 +173,13 @@ fun HomeScreen(
                             navController2 = homeNavController,
                             homeViewModel = homeViewModel
                         )
-                        }
                     }
                 }
             }
         }
-
     }
 
+}
 
 @Composable
 fun StoryItem(
@@ -190,7 +206,7 @@ fun StoryItem(
                             HomeRouteScreen.AddStory.route
                         } else {
                             HomeRouteScreen.AllStory.route.replace(
-                                "{all_story}", currentUserId
+                                oldValue = "{all_story}", newValue = currentUserId
                             )
                         }
                         navController.navigate(route)
@@ -201,7 +217,7 @@ fun StoryItem(
             item { Spacer(modifier = Modifier.padding(start = 10.dp)) }
             // Other Users' Stories
             if (!usersList.isNullOrEmpty()) {
-                items(usersList.filter { it.uid != FirebaseAuth.getInstance().currentUser!!.uid }) { user ->
+                items(usersList.filter { it.uid != FirebaseAuth.getInstance().currentUser?.uid }) { user ->
                     UsersStoryHomeItem(
                         users = user,
                         navHostController = navController
@@ -226,9 +242,9 @@ fun UserStory(
             Image(
                 painter = rememberAsyncImagePainter(model = imageUrl),
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(70.dp)
                     .clip(CircleShape)
-                    .border(4.dp, Blue40, CircleShape)
+                    .border(width = 4.dp, brush = brushAddPost, shape = CircleShape)
                     .clickable { onClick() },
                 contentDescription = null,
                 contentScale = ContentScale.Crop
@@ -239,14 +255,15 @@ fun UserStory(
                 modifier = Modifier
                     .size(22.dp)
                     .align(Alignment.BottomEnd)
-                    .clickable { onClick() }
+                    .clickable { onClick() },
+                tint = LightGray
             )
         }
         Text(
             text = "You",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontSize = TextDim.tertiaryTextSize,
+            fontFamily = FontDim.Medium,
+            color = White
         )
     }
 }
-

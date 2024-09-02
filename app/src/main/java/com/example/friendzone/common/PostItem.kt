@@ -3,8 +3,10 @@ package com.example.friendzone.common
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,17 +15,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,24 +42,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.data.model.CommentModel
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.UserModel
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.MainRouteScreen
+import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -99,13 +110,13 @@ fun PostItem(
             isLiked = it.likes.containsKey(currentUserId)
         }
     }
-
+    Spacer(modifier = modifier.padding(top = 4.dp))
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(6.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(White)
+        colors = CardDefaults.cardColors(DarkBlack)
     ) {
         Column(
             modifier = modifier
@@ -115,8 +126,8 @@ fun PostItem(
             Row(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp, top = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .padding(10.dp),
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.Start
             ) {
                 Image(
@@ -139,22 +150,172 @@ fun PostItem(
                         },
                     contentScale = ContentScale.Crop
                 )
+                Column(
+                    modifier = modifier,
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-                Text(
-                    text = users.userName,
-                    fontSize = 20.sp,
-                    modifier = modifier.padding(start = 10.dp)
-                )
+                    Text(
+                        text = users.name,
+                        fontSize = TextDim.titleTextSize,
+                        fontFamily = FontDim.Bold,
+                        color = White,
+                        modifier = modifier.padding(start = 10.dp)
+                    )
+                    Text(
+                        text = users.userName,
+                        fontSize = TextDim.secondaryTextSize,
+                        fontFamily = FontDim.Medium,
+                        color = White,
+                        modifier = modifier.padding(start = 10.dp)
+                    )
+                }
 
                 Spacer(modifier = modifier.weight(1f))
 
+
+                Spacer(modifier = modifier.padding(start = 6.dp))
+
+            }
+
+            if (post.images?.isNotEmpty() == true) {
+                HorizontalPager(
+                    state = imagePagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    Card(
+                        Modifier
+                            .fillMaxWidth()
+                            .size(400.dp)
+                            .graphicsLayer {
+                                // Calculate the absolute offset for the current page from the
+                                // scroll position. We use the absolute value which allows us to mirror
+                                // any effects for both directions
+                                val pageOffset = (
+                                        (imagePagerState.currentPage - page) + imagePagerState
+                                            .currentPageOffsetFraction
+                                        ).absoluteValue
+
+                                // We animate the alpha, between 50% and 100%
+                                alpha = lerp(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+                            }
+                    ) {
+                        Box(modifier = modifier) {
+
+                            Image(
+                                painter = rememberAsyncImagePainter(model = post.images?.get(page)),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(400.dp),
+                                contentScale = ContentScale.Crop,
+                            )
+                            if ((post.images.size ?: 0) > 1) {
+                                Row(
+                                    Modifier
+                                        .wrapContentHeight()
+                                        .fillMaxWidth()
+                                        .align(Alignment.BottomCenter)
+                                        .padding(bottom = 8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    repeat(imagePagerState.pageCount) { iteration ->
+                                        val color =
+                                            if (imagePagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(2.dp)
+                                                .clip(RectangleShape)
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(color)
+                                                .size(16.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Column(
+                modifier = modifier
+                    .padding(start = 12.dp)
+                    .padding(4.dp)
+            ) {
+                Text(
+                    text = post.post,
+                    fontSize = TextDim.titleTextSize,
+                    fontFamily = FontDim.Medium,
+                    color = White,
+                    modifier = modifier.padding(start = 6.dp)
+                )
+            }
+
+            Spacer(modifier = modifier.padding(top = 20.dp))
+
+            Row(
+                modifier = modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Spacer(modifier = modifier.padding(start = 10.dp))
+                Icon(imageVector = if (isLiked) Icons.Filled.ThumbUp
+                else Icons.Outlined.ThumbUp,
+                    contentDescription = null,
+                    tint = if (isLiked) White
+                    else White,
+                    modifier = modifier
+                        .size(24.dp)
+                        .clickable {
+                            if (currentUserId.isNotEmpty()) {
+                                homeViewModel.toggleLike(
+                                    postId = post?.storeKey ?: "", userId = currentUserId
+                                )
+                            }
+                        }
+                )
+
+                Text(
+                    text = "$likeCount",
+                    fontSize = TextDim.bodyTextSize,
+                    fontFamily = FontDim.Medium,
+                    color = White,
+                    modifier = modifier.padding(start = 6.dp)
+                )
+                Spacer(modifier = modifier.padding(start = 10.dp))
+
+                Icon(
+                    imageVector = Icons.Outlined.ModeComment,
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(24.dp)
+                        .clickable {
+                            navController.navigate(
+                                HomeRouteScreen.CommentDetail.route.replace(
+                                    "{comment_detail}", post.storeKey ?: ""
+                                )
+                            )
+                        }, tint = Color.White
+                )
+                Text(
+                    text = "$commentCount", fontSize = TextDim.bodyTextSize,
+                    fontFamily = FontDim.Medium, color = White,
+                    modifier = modifier.padding(start = 6.dp)
+
+                )
+
+                Spacer(modifier = modifier.weight(1f))
                 Icon(
                     imageVector = if (isSaved) Icons.Default.Bookmark
                     else Icons.Default.BookmarkBorder,
                     contentDescription = null,
-                    tint = Black,  // Adjust color as needed
+                    tint = White,  // Adjust color as needed
                     modifier = modifier
-                        .size(30.dp)
+                        .size(24.dp)
                         .clickable {
                             post?.storeKey?.let {
                                 homeViewModel.toggleSavePost(
@@ -166,84 +327,12 @@ fun PostItem(
 
                         }
                 )
-                Spacer(modifier = modifier.padding(start = 6.dp))
-
-            }
-
-            if (post.images?.isNotEmpty() == true) {
-                HorizontalPager(
-                    state = imagePagerState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp)
-                        .height(200.dp)
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(model = post.images?.get(it)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .weight(1f)
-                            .size(370.dp),
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-            }
-
-            Column(
-                modifier = modifier
-                    .padding(start = 12.dp)
-                    .padding(4.dp)
-            ) {
-                Text(text = post.post, fontSize = 18.sp, fontWeight = FontWeight.Normal)
-            }
-
-            Spacer(modifier = modifier.padding(top = 20.dp))
-
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Spacer(modifier = modifier.padding(start = 10.dp))
-
-                Icon(imageVector = Icons.Default.AddComment,
-                    contentDescription = null,
-                    modifier = modifier
-                        .size(30.dp)
-                        .clickable {
-                            navController.navigate(
-                                HomeRouteScreen.CommentDetail.route.replace(
-                                    "{comment_detail}", post.storeKey ?: ""
-                                )
-                            )
-                        })
-                Spacer(modifier = modifier.padding(start = 6.dp))
-                Text(text = "$commentCount comment")
-                Spacer(modifier = modifier.padding(start = 130.dp))
-
-                Log.d("PostItemTAG", "Comment count: ${post.comments.size}")
-                Text(text = "$likeCount Likes")
-                Spacer(modifier = modifier.padding(start = 6.dp))
-                Icon(imageVector = if (isLiked) Icons.Default.Favorite
-                else Icons.Default.FavoriteBorder,
-                    contentDescription = null,
-                    tint = if (isLiked) Red
-                    else Black,
-                    modifier = modifier
-                        .size(30.dp)
-                        .clickable {
-                            if (currentUserId.isNotEmpty()) {
-                                homeViewModel.toggleLike(
-                                    postId = post?.storeKey ?: "", userId = currentUserId
-                                )
-                            }
-                        })
-                Spacer(modifier = modifier.padding(top = 10.dp))
-
+                Spacer(modifier = modifier.padding(start = 4.dp))
             }
         }
-        Spacer(modifier = modifier.padding(top = 10.dp))
     }
+    Divider(modifier = modifier.height(1.dp), color = Gray)
+
 }
 
 

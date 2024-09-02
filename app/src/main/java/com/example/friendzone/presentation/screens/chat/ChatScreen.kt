@@ -55,9 +55,11 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
     var searchChat by remember { mutableStateOf("") }
 
     val usersList by searchViewModel.userList.observeAsState(null)
+
     LaunchedEffect(Unit) {
         searchViewModel.fetchUsersExcludingCurrentUser(currentUserId)
     }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(containerColor = Blue80, onClick = {

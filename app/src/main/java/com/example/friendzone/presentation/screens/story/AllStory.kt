@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.DetailStoryItem
-import com.example.friendzone.data.model.StoryModel
 import com.example.friendzone.viewmodel.story.AddStoryViewModel
 import com.example.friendzone.viewmodel.story.StoryViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
@@ -47,54 +45,41 @@ fun AllStory(
     navController: NavController,
     uid: String
 ) {
-
     val userViewModel: UserViewModel = viewModel()
-
-    val users by userViewModel.users.observeAsState(null)
-    val story by userViewModel.story.observeAsState(null)
-
     val storyViewModel: StoryViewModel = viewModel()
     val addStoryViewModel: AddStoryViewModel = viewModel()
-    val deleteSuccess by userViewModel.deleteSuccess.observeAsState(false)
-    val context = LocalContext.current
 
-    val storyAndUsers by storyViewModel.storyAndUsers.observeAsState(null)
-    val pagerState = rememberPagerState(pageCount = {
-        story?.size ?: 0
-    })
-    val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-//    val uidStory = story?.get(pagerState.currentPage)?.uidStory
-    val storyModel = StoryModel()
+    val users by userViewModel.users.observeAsState(null)
+    val story by userViewModel.story.observeAsState(emptyList())
+    val deleteSuccess by userViewModel.deleteSuccess.observeAsState(false)
+
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = uid) {
         userViewModel.fetchStory(uid)
         userViewModel.fetchUsers(uid)
+        userViewModel.fetchUsers(FirebaseAuth.getInstance().currentUser!!.uid)
     }
-
 
     LaunchedEffect(deleteSuccess) {
         if (deleteSuccess) {
             Toast.makeText(
                 context,
-                "Story have been Successfully Deleted",
+                "Story has been successfully deleted",
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 
+    val pagerState = rememberPagerState(pageCount = { story.size })
 
     Scaffold { paddingValues ->
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            item {
                 Box(
                     modifier = modifier
                         .fillMaxSize()
                         .padding(10.dp)
                 ) {
-
                     Column(
                         modifier = modifier
                             .fillMaxSize()
@@ -107,30 +92,20 @@ fun AllStory(
                                 .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val imageUrl = users?.imageUrl
                             Image(
-                                painter = rememberAsyncImagePainter(model = users!!.imageUrl),
-                                contentDescription = null, modifier = modifier
+                                painter = rememberAsyncImagePainter(model = imageUrl),
+                                contentDescription = null,
+                                modifier = modifier
                                     .size(40.dp)
-                                    .clip(CircleShape), contentScale = ContentScale.Crop
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
                             )
                             Spacer(modifier = modifier.padding(start = 10.dp))
                             Text(text = users?.name ?: "", fontSize = 18.sp)
-
-
                         }
-                        if (story == null) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "Loading stories...",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-                        } else if (story!!.isEmpty()) {
+
+                        if (story.isEmpty()) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -146,26 +121,21 @@ fun AllStory(
                             Spacer(modifier = modifier.height(20.dp))
                             HorizontalPager(
                                 state = pagerState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                            ) { it ->
-                                story ?: emptyList()
-                                val storyDetail = story!![it]
-                                DetailStoryItem(
-                                    story = storyDetail!!,
-                                    users = users!!,
-                                    onDelete = {
-                                        userViewModel.fetchStory(uid)
-                                        userViewModel.deleteStory(storyKey = storyDetail.storyKey)
-                                        userViewModel.fetchStory(uid)
-                                    }
-                                )
-
+                                modifier = Modifier.fillMaxSize()
+                            ) { pageIndex ->
+                                val storyDetail = story.getOrNull(pageIndex)
+                                if (storyDetail != null) {
+                                    DetailStoryItem(
+                                        story = storyDetail,
+                                        users = users ?: return@HorizontalPager,
+                                        onDelete = {
+                                            userViewModel.deleteStory(storyKey = storyDetail.storyKey)
+                                            userViewModel.fetchStory(uid)
+                                        }
+                                    )
+                                }
                             }
                         }
-                    }
-                }
-            }
-        }
+                    }}
     }
 }

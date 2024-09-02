@@ -39,22 +39,22 @@ fun CommentsScreen(
 
         Comments(
             comments = comments,
-
-            ) { commentText ->
-            val newComment = CommentModel(
-                userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                text = commentText
-            )
-            viewModel.addComment(
-                userId = currentUserId,
-                postId = postId,
-                commentText = commentText,
-                username = SharedPref.getUserName(context),
-                name = SharedPref.getName(context),
-                image = SharedPref.getImageUrl(context),
-                timeStamp = System.currentTimeMillis().toString()
-            )
-            comments = comments + newComment
-        }
+            onBackClick = { navController.navigateUp() },
+            onCommentAdded = { commentText ->
+                val newComment = CommentModel(
+                    userId = FirebaseAuth.getInstance().currentUser!!.uid,
+                    text = commentText
+                )
+                viewModel.addComment(
+                    userId = currentUserId,
+                    postId = postId,
+                    commentText = commentText,
+                    username = SharedPref.getUserName(context),
+                    name = SharedPref.getName(context),
+                    image = SharedPref.getImageUrl(context),
+                    timeStamp = System.currentTimeMillis().toString()
+                )
+                comments = comments + newComment
+            })
     }
 }

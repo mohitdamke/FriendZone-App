@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,18 +18,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,16 +47,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.friendzone.R
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
+import com.example.friendzone.ui.theme.DarkBlack
+import com.example.friendzone.ui.theme.White
+import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.story.AddStoryViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -69,6 +74,7 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
 
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 
     LaunchedEffect(isPosted) {
@@ -111,24 +117,34 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkBlack,
+                    titleContentColor = White,
+                    actionIconContentColor = White,
+                    navigationIconContentColor = White,
+                    scrolledContainerColor = DarkBlack,
                 ),
                 title = {
-                    Text("Add Story")
+                    Text(
+                        "Add Story", maxLines = 1,
+                        letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
+                        overflow = TextOverflow.Visible,
+                        fontFamily = FontDim.Bold,
+                    )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                            navController.navigateUp()
-                    }) {
-                        Image(
-                            painter = painterResource(id = R.drawable.baseline_close_24),
-                            contentDescription = null
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = modifier.size(28.dp)
+
                         )
                     }
                 },
                 actions = {
-                    Button(
+
+                    TextButton(
                         onClick = {
                             if (imageUri == null) {
                                 addStoryViewModel.saveStory(
@@ -141,12 +157,20 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
                                     userId = FirebaseAuth.getInstance().currentUser!!.uid,
                                     imageUri = imageUri!!
                                 )
-
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(Color.Black)
+                        modifier = modifier
+                            .padding(top = 70.dp, bottom = 70.dp)
+                            .clip(CircleShape)
+                            .background(brushAddPost)
+
                     ) {
-                        Text(text = "Add Story", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = "Publish",
+                            fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = White
+                        )
                     }
                 }
             )
@@ -157,6 +181,7 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .background(DarkBlack)
                 .padding(padding),
         ) {
             Row(
@@ -169,14 +194,17 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
                 IconButton(onClick = { /* TODO something */ }) {
                     Image(
                         painter = rememberAsyncImagePainter(model = SharedPref.getImageUrl(context)),
-                        contentDescription = null
+                        contentDescription = null, modifier = Modifier
+                            .clip(CircleShape)
+                            .size(44.dp), contentScale = ContentScale.Crop
                     )
                 }
                 Spacer(modifier = Modifier.padding(start = 10.dp))
                 Text(
                     text = SharedPref.getUserName(context),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal
+                    fontSize = TextDim.titleTextSize,
+                    fontFamily = FontDim.Bold,
+                    color = White
                 )
             }
 
@@ -184,49 +212,52 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(30.dp), contentAlignment = Alignment.Center
-
             ) {
-                Image(
-                    painter = if (imageUri != null) rememberAsyncImagePainter(
-                        model = imageUri
+                if (imageUri != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = imageUri),
+                        contentDescription = "Selected Image",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RectangleShape)
                     )
-                    else
-                        painterResource(id = R.drawable.add),
-                    contentDescription = "Background Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .size(300.dp)
-                        .clip(RectangleShape)
-                        .clickable {
-                            val isGranted = ContextCompat.checkSelfPermission(
-                                context,
-                                permissionToRequest
-                            ) == PackageManager.PERMISSION_GRANTED
-
-                            if (isGranted) {
-                                launcher.launch("image/*")
-                                Log.i("TAG", "image is been loading")
-                            } else {
-                                permissionLauncher.launch(permissionToRequest)
-                                Log.i("TAG", "image is not loading")
-
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Close Icon",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(60.dp)
+                            .clickable {
+                                imageUri = null
                             }
-                        }
-                )
+                            .padding(top = 14.dp, bottom = 10.dp)
+                            .align(Alignment.TopEnd)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add Photo",
+                        tint = White,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                val isGranted = ContextCompat.checkSelfPermission(
+                                    context,
+                                    permissionToRequest
+                                ) == PackageManager.PERMISSION_GRANTED
 
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "Close Icon",
-                    tint = Color.Black,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clickable {
-                            imageUri = null
-                        }
-                        .padding(top = 14.dp, bottom = 10.dp)
-                        .align(Alignment.TopEnd)
-                )
+                                if (isGranted) {
+                                    launcher.launch("image/*")
+                                    Log.i("TAG", "Image is being loaded")
+                                } else {
+                                    permissionLauncher.launch(permissionToRequest)
+                                    Log.i("TAG", "Image permission is not granted")
+                                }
+                            }
+                    )
+                }
+
             }
         }
     }
