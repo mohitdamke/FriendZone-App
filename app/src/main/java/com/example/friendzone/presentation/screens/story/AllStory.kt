@@ -3,6 +3,7 @@ package com.example.friendzone.presentation.screens.story
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,8 +16,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,18 +35,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.DetailStoryItem
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
+import com.example.friendzone.ui.theme.DarkBlack
+import com.example.friendzone.ui.theme.White
 import com.example.friendzone.viewmodel.story.AddStoryViewModel
 import com.example.friendzone.viewmodel.story.StoryViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AllStory(
     modifier: Modifier = Modifier,
@@ -52,13 +65,18 @@ fun AllStory(
     val users by userViewModel.users.observeAsState(null)
     val story by userViewModel.story.observeAsState(emptyList())
     val deleteSuccess by userViewModel.deleteSuccess.observeAsState(false)
-
+    val currentUser by userViewModel.currentUser.observeAsState(null)
     val context = LocalContext.current
 
     LaunchedEffect(key1 = uid) {
         userViewModel.fetchStory(uid)
         userViewModel.fetchUsers(uid)
+        userViewModel.fetchUserDetails(uid)  // This should fetch details for the clicked user.
         userViewModel.fetchUsers(FirebaseAuth.getInstance().currentUser!!.uid)
+    }
+
+    LaunchedEffect(key1 = FirebaseAuth.getInstance().currentUser!!.uid) {
+        userViewModel.fetchUserDetails(FirebaseAuth.getInstance().currentUser!!.uid)  // This fetches details for the current user.
     }
 
     LaunchedEffect(deleteSuccess) {
@@ -73,69 +91,107 @@ fun AllStory(
 
     val pagerState = rememberPagerState(pageCount = { story.size })
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkBlack,
+                    titleContentColor = White,
+                    actionIconContentColor = White,
+                    navigationIconContentColor = White,
+                    scrolledContainerColor = DarkBlack,
+                ),
+                title = {
+                    Text(
+                        "Story", maxLines = 1,
+                        letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
+                        overflow = TextOverflow.Visible,
+                        fontFamily = FontDim.Bold,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            modifier = modifier.size(28.dp)
 
-                Box(
+                        )
+                    }
+                },
+            )
+        },
+        modifier = modifier.fillMaxSize()
+    ) { paddingValues ->
+        if (currentUser != null) {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+            ) {
+                Column(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(10.dp)
+                        .background(DarkBlack)
+                        .padding(paddingValues)
+                        .padding(10.dp),
                 ) {
-                    Column(
+                    Row(
                         modifier = modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .padding(16.dp),
+                            .fillMaxWidth()
+                            .padding(start = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
+                        val imageUrl = users?.imageUrl
+                        Image(
+                            painter = rememberAsyncImagePainter(model = imageUrl),
+                            contentDescription = null,
                             modifier = modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            val imageUrl = users?.imageUrl
-                            Image(
-                                painter = rememberAsyncImagePainter(model = imageUrl),
-                                contentDescription = null,
-                                modifier = modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                            Spacer(modifier = modifier.padding(start = 10.dp))
-                            Text(text = users?.name ?: "", fontSize = 18.sp)
-                        }
+                                .size(60.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = modifier.padding(start = 10.dp))
+                        Text(
+                            text = users?.name ?: "",
+                            fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = White
+                        )
+                    }
 
-                        if (story.isEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "No stories found.",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.fillMaxSize()
+                    if (story.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No stories found.",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = modifier.height(20.dp))
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize()
+                        ) { pageIndex ->
+                            val storyDetail = story.getOrNull(pageIndex)
+                            if (storyDetail != null) {
+                                DetailStoryItem(
+                                    story = storyDetail,
+                                    users = users ?: return@HorizontalPager,
+                                    onDelete = {
+                                        userViewModel.deleteStory(storyKey = storyDetail.storyKey)
+                                        userViewModel.fetchStory(uid)
+                                    }
                                 )
                             }
-                        } else {
-                            Spacer(modifier = modifier.height(20.dp))
-                            HorizontalPager(
-                                state = pagerState,
-                                modifier = Modifier.fillMaxSize()
-                            ) { pageIndex ->
-                                val storyDetail = story.getOrNull(pageIndex)
-                                if (storyDetail != null) {
-                                    DetailStoryItem(
-                                        story = storyDetail,
-                                        users = users ?: return@HorizontalPager,
-                                        onDelete = {
-                                            userViewModel.deleteStory(storyKey = storyDetail.storyKey)
-                                            userViewModel.fetchStory(uid)
-                                        }
-                                    )
-                                }
-                            }
                         }
-                    }}
+                    }
+                }
+            }
+        }
     }
 }

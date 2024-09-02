@@ -9,6 +9,7 @@ import com.example.friendzone.data.model.ChatModel
 import com.example.friendzone.data.model.PostModel
 import com.example.friendzone.data.model.StoryModel
 import com.example.friendzone.data.model.UserModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -54,11 +55,16 @@ class UserViewModel : ViewModel() {
     private val _deleteSuccess = MutableLiveData<Boolean>()
     val deleteSuccess: LiveData<Boolean> = _deleteSuccess
 
+    private val currentUserUid = FirebaseAuth.getInstance().currentUser!!.uid
+    private val _currentUser = MutableLiveData<UserModel?>()
+    val currentUser: LiveData<UserModel?> get() = _currentUser
+
 
     private var job: Job? = null
 
     init {
         startStoryCleanupTask()
+        fetchUserDetails(currentUserUid)
     }
 
     override fun onCleared() {
@@ -200,6 +206,20 @@ class UserViewModel : ViewModel() {
                     Log.d("FetchStory", "Failed to fetch stories: ${error.message}")
                 }
             })
+    }
+
+    fun fetchUserDetails(uid: String) {
+        userRef.child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(UserModel::class.java)
+                _currentUser.postValue(user)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("UserViewModel", "Error fetching user data: ${error.message}")
+                _currentUser.postValue(null)
+            }
+        })
     }
 
     fun deleteStory(storyKey: String) {

@@ -82,7 +82,6 @@ fun ChatPeople(
         currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     }
 
-
     val userViewModel: UserViewModel = viewModel()
     val users by userViewModel.users.observeAsState(null)
     val chatMessages by userViewModel.chatMessages.observeAsState(listOf())

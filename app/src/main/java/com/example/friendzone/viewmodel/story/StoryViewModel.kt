@@ -3,58 +3,57 @@ package com.example.friendzone.viewmodel.story
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.friendzone.data.model.StoryModel
 import com.example.friendzone.data.model.UserModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
 
 class StoryViewModel : ViewModel() {
 
-
     private val db = FirebaseDatabase.getInstance()
+    private val storyRef = db.getReference("story")
+    private val userRef = db.getReference("users")
 
-    val story = db.getReference("story")
-
-    private var _storyAndUsers = MutableLiveData<List<Pair<StoryModel, UserModel>>>()
+    private val _storyAndUsers = MutableLiveData<List<Pair<StoryModel, UserModel>>>()
     val storyAndUsers: LiveData<List<Pair<StoryModel, UserModel>>> = _storyAndUsers
 
     init {
-        fetchStoryAndUsers {
-            _storyAndUsers.value = it
-        }
+        fetchStoryAndUsers()
     }
 
-    private fun fetchStoryAndUsers(onResult: (List<Pair<StoryModel, UserModel>>) -> Unit) {
-
-        story.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(snapshot: DataSnapshot) {
-
+    private fun fetchStoryAndUsers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val storySnapshot = storyRef.get().await()
                 val result = mutableListOf<Pair<StoryModel, UserModel>>()
 
-                for (storySnapshot in snapshot.children) {
-
-                    val story = storySnapshot.getValue(StoryModel::class.java)
-                    story.let {
-                        fetchUserFromStory(it!!) { user ->
-                            result.add(0, it to user)
-
-                            if (result.size == snapshot.childrenCount.toInt()) {
-                                onResult(result)
-                            }
-
+                for (storySnap in storySnapshot.children) {
+                    val story = storySnap.getValue(StoryModel::class.java)
+                    if (story != null) {
+                        val userSnapshot = userRef.child(story.userId).get().await()
+                        val user = userSnapshot.getValue(UserModel::class.java)
+                        if (user != null) {
+                            result.add(story to user)
                         }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                _storyAndUsers.postValue(result)
+
+            } catch (e: Exception) {
+                // Handle the exception, e.g., log it or notify the user
+                e.printStackTrace()
             }
-        })
+        }
     }
+
 
     private fun fetchUserFromStory(story: StoryModel, onResult: (UserModel) -> Unit) {
         db.getReference("users").child(story.userId)

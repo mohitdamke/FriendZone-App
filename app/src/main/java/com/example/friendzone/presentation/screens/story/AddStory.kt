@@ -146,17 +146,20 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
 
                     TextButton(
                         onClick = {
-                            if (imageUri == null) {
-                                addStoryViewModel.saveStory(
-                                    userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                                    storyKey = "",  // Provide a default key or handle it separately
-                                    imageUrl = ""
-                                )
-                            } else {
-                                addStoryViewModel.saveImage(
-                                    userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                                    imageUri = imageUri!!
-                                )
+                            val currentUser = FirebaseAuth.getInstance().currentUser
+                            if (currentUser != null) {
+                                if (imageUri == null) {
+                                    addStoryViewModel.saveStory(
+                                        userId = FirebaseAuth.getInstance().currentUser!!.uid,
+                                        storyKey = "",  // Provide a default key or handle it separately
+                                        imageUrl = ""
+                                    )
+                                } else {
+                                    addStoryViewModel.saveImage(
+                                        userId = FirebaseAuth.getInstance().currentUser!!.uid,
+                                        imageUri = imageUri!!
+                                    )
+                                }
                             }
                         },
                         modifier = modifier
