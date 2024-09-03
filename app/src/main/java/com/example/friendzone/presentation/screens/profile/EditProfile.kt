@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,22 +16,24 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddComment
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,23 +47,24 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.R
-import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
+import com.example.friendzone.ui.theme.DarkBlack
+import com.example.friendzone.ui.theme.White
 import com.example.friendzone.viewmodel.auth.AuthViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile(
     modifier: Modifier = Modifier,
@@ -96,129 +100,156 @@ fun EditProfile(
     }
 
 
-    Scaffold { paddingValues ->
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            item {
-                Column(
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = DarkBlack,
+                titleContentColor = White,
+                actionIconContentColor = White,
+                navigationIconContentColor = White,
+                scrolledContainerColor = DarkBlack,
+            ), title = {
+                Text(
+                    text = "EDIT PROFILE",
+                    maxLines = 1,
+                    letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
+                    overflow = TextOverflow.Visible,
+                    fontFamily = FontDim.Bold,
+                )
+            }, navigationIcon = {
+                Icon(imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null,
                     modifier = modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Column(
-                        modifier = modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Edit Profile",
-                            fontSize = 30.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            color = Blue40
-                        )
-                    }
-                    Spacer(modifier = modifier.padding(top = 20.dp))
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Image(
-                        painter = if (imageUri == null) {
-                            painterResource(id = R.drawable.man)
-                        } else {
-                            rememberAsyncImagePainter(
-                                model = imageUri,
-                            )
-                        },
-                        contentDescription = null,
-                        modifier = modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                val isGranted = ContextCompat.checkSelfPermission(
-                                    context, permissionToRequest
-                                ) == PackageManager.PERMISSION_GRANTED
-
-                                if (isGranted) {
-                                    launcher.launch("image/*")
-                                } else {
-                                    permissionLauncher.launch(permissionToRequest)
-                                }
-
-                            },
-                        contentScale = ContentScale.Crop
-                    )
-                    if (imageUri == null) {
-
-                        Text(text = "Upload your profile picture")
-                    } else {
-                        Text(text = "Change your profile picture")
-
-                    }
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    OutlineText(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = "Username",
-                        icons = Icons.Default.Person2,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlineText(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = "Name",
-                        icons = Icons.Default.Person,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlineText(
-                        value = bio,
-                        onValueChange = { bio = it },
-                        label = "Bio",
-                        icons = Icons.Default.AddComment,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            authViewModel.updateProfile(
-                                name = name.ifEmpty { null },
-                                bio = bio.ifEmpty { null },
-                                userName = username.ifEmpty { null },
-                                imageUri = imageUri,
-                                context = context
-                            )
+                        .size(30.dp)
+                        .clickable {
                             navController.navigateUp()
-                        },
-                        modifier = modifier.fillMaxWidth(),
-                        colors = ButtonColors(
-                            contentColor = Color.White,
-                            containerColor = Blue40,
-                            disabledContentColor = Color.Gray,
-                            disabledContainerColor = Blue40
-                        )
-                    ) {
-                        Text("Update Profile", fontSize = 18.sp, fontWeight = FontWeight.Medium)
-                    }
-                }
+
+                        })
+
+            }
+
+            )
+        },
+    ) { paddingValues ->
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(DarkBlack)
+                .padding(paddingValues)
+                .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Spacer(modifier = Modifier.padding(top = 16.dp))
+            Image(
+                painter = if (imageUri == null) {
+                    painterResource(id = R.drawable.man)
+                } else {
+                    rememberAsyncImagePainter(
+                        model = imageUri,
+                    )
+                },
+                contentDescription = null,
+                modifier = modifier
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        val isGranted = ContextCompat.checkSelfPermission(
+                            context, permissionToRequest
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (isGranted) {
+                            launcher.launch("image/*")
+                        } else {
+                            permissionLauncher.launch(permissionToRequest)
+                        }
+
+                    },
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = modifier.padding(top = 10.dp))
+            if (imageUri == null) {
+
+                Text(
+                    text = "Upload your profile picture",
+                    fontSize = TextDim.secondaryTextSize,
+                    fontFamily = FontDim.Bold,
+                    color = White
+                )
+            } else {
+                Text(
+                    text = "Change your profile picture",
+                    fontSize = TextDim.secondaryTextSize,
+                    fontFamily = FontDim.Bold,
+                    color = White
+                )
+
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+
+            EditProfileOutlineText(
+                value = username,
+                onValueChange = { username = it },
+                label = "Username",
+                icons = Icons.Default.Person2,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            EditProfileOutlineText(
+                value = name,
+                onValueChange = { name = it },
+                label = "Name",
+                icons = Icons.Default.Person,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                )
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            EditProfileOutlineText(
+                value = bio,
+                onValueChange = { bio = it },
+                label = "Bio",
+                icons = Icons.Default.AddComment,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                )
+            )
+
+            Spacer(modifier = Modifier.padding(top = 16.dp))
+
+            Button(
+                onClick = {
+                    authViewModel.updateProfile(
+                        name = name.ifEmpty { null },
+                        bio = bio.ifEmpty { null },
+                        userName = username.ifEmpty { null },
+                        imageUri = imageUri,
+                        context = context
+                    )
+                    navController.navigateUp()
+                },
+                elevation = ButtonDefaults.buttonElevation(10.dp),
+                border = ButtonDefaults.outlinedButtonBorder,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(40.dp)),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = DarkBlack, contentColor = Color.White
+                )
+
+            ) {
+                Text(
+                    "Update Profile", fontSize = TextDim.bodyTextSize,
+                    fontFamily = FontDim.Normal,
+                )
+
             }
         }
     }
@@ -227,7 +258,7 @@ fun EditProfile(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OutlineText(
+private fun EditProfileOutlineText(
     modifier: Modifier = Modifier,
     value: String,
     icons: ImageVector,
@@ -238,28 +269,37 @@ private fun OutlineText(
     OutlinedTextField(
         value = value,
         onValueChange = { onValueChange(it) },
-        singleLine = true, leadingIcon = {
+        singleLine = true,
+        leadingIcon = {
             Icon(
                 imageVector = icons,
                 contentDescription = "",
-                modifier = Modifier.padding(10.dp), tint = Color.Black
+                modifier = Modifier.padding(10.dp),
+                tint = White
             )
         },
-        label = {
+        placeholder = {
             Text(
-                text = "Enter your $label", fontSize = 16.sp,
-                fontWeight = FontWeight.W600, color = Color.Black,
-                fontFamily = FontFamily.SansSerif, maxLines = 1
+                text = "Enter your $label",
+                fontSize = TextDim.secondaryTextSize,
+                fontFamily = FontDim.Medium,
+                color = Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Visible
             )
         },
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            focusedBorderColor = Color.Black,
-            unfocusedBorderColor = Color.Black,
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black
+            unfocusedPlaceholderColor = Color.Gray,
+            focusedPlaceholderColor = Color.Gray,
+            focusedBorderColor = Color.Gray,
+            unfocusedBorderColor = Color.Gray,
+            focusedTextColor = White,
+            unfocusedTextColor = White
         ),
         keyboardOptions = keyboardOptions,
-        modifier = modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), minLines = 1
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(100.dp),
+        minLines = 1
     )
 }
 

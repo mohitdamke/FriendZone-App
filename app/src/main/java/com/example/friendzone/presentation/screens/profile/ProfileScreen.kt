@@ -2,6 +2,7 @@ package com.example.friendzone.presentation.screens.profile
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +24,12 @@ import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,8 +41,7 @@ import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -46,17 +49,19 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.PostItem
 import com.example.friendzone.data.model.UserModel
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.AuthRouteScreen
 import com.example.friendzone.nav.routes.MainRouteScreen
 import com.example.friendzone.nav.routes.ProfileRouteScreen
-import com.example.friendzone.ui.theme.Blue40
-import com.example.friendzone.ui.theme.Blue80
+import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.auth.AuthViewModel
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
@@ -75,11 +80,11 @@ fun ProfileScreen(
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
 
     LaunchedEffect(Unit) {
-            userViewModel.fetchPosts(currentUserId)
-            userViewModel.getFollowers(currentUserId)
-            userViewModel.getFollowing(currentUserId)
-            homeViewModel.fetchSavedPost(currentUserId)
-        }
+        userViewModel.fetchPosts(currentUserId)
+        userViewModel.getFollowers(currentUserId)
+        userViewModel.getFollowing(currentUserId)
+        homeViewModel.fetchSavedPost(currentUserId)
+    }
 
 
     val postsToDisplay = posts
@@ -105,7 +110,47 @@ fun ProfileScreen(
         imageUrl = SharedPref.getImageUrl(context)
     )
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkBlack,
+                    titleContentColor = com.example.friendzone.ui.theme.White,
+                    actionIconContentColor = com.example.friendzone.ui.theme.White,
+                    navigationIconContentColor = com.example.friendzone.ui.theme.White,
+                    scrolledContainerColor = DarkBlack,
+                ),
+                title = {
+                    Text(
+                        text = "PROFILE",
+                        maxLines = 1,
+                        letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
+                        overflow = TextOverflow.Visible,
+                        fontFamily = FontDim.Bold,
+                    )
+                }, actions = {
+                    Icon(
+                        imageVector = Icons.Default.Save,
+                        contentDescription = "Saved Posts",
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clickable { navController.navigate(ProfileRouteScreen.SavedPosts.route) },
+                        tint = White
+                    )
+                    Spacer(modifier = Modifier.padding(horizontal = 10.dp))
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clickable { navController.navigate(ProfileRouteScreen.Settings.route) },
+                        tint = White
+                    )
+                }
+
+            )
+        },
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -145,21 +190,23 @@ fun ProfileHeader(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(DarkBlack),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Your Profile",
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = Blue40
-        )
         Spacer(modifier = Modifier.padding(top = 20.dp))
         ProfileImage(modifier, user.imageUrl, navController)
-        Text(text = user.name, fontSize = 26.sp)
+        Text(
+            text = user.name, fontSize = TextDim.titleTextSize, fontFamily = FontDim.Bold,
+            color = com.example.friendzone.ui.theme.White
+        )
         Spacer(modifier = Modifier.padding(top = 4.dp))
-        Text(text = "@${user.userName}", fontSize = 16.sp)
+        Text(
+            text = "@${user.userName}",
+            fontSize = TextDim.secondaryTextSize,
+            fontFamily = FontDim.Normal,
+            color = com.example.friendzone.ui.theme.White
+        )
         ProfileActions(modifier, navController)
         ProfileStats(modifier, postCount, followerCount, followingCount)
     }
@@ -213,24 +260,15 @@ fun ProfileActions(
                 .clip(RoundedCornerShape(40.dp))
                 .padding(10.dp),
             elevation = ButtonDefaults.buttonElevation(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Blue80, contentColor = Black)
+            border = ButtonDefaults.outlinedButtonBorder,
+            colors = ButtonDefaults.buttonColors(containerColor = DarkBlack, contentColor = White)
         ) {
-            Text(text = "Edit Profile", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text(
+                text = "Edit Profile",
+                fontSize = TextDim.bodyTextSize,
+                fontFamily = FontDim.Normal,
+            )
         }
-        Icon(
-            imageVector = Icons.Default.Settings,
-            contentDescription = "Settings",
-            modifier = Modifier
-                .size(30.dp)
-                .clickable { navController.navigate(ProfileRouteScreen.Settings.route) }
-        )
-        Icon(
-            imageVector = Icons.Default.Save,
-            contentDescription = "Saved Posts",
-            modifier = Modifier
-                .size(30.dp)
-                .clickable { navController.navigate(ProfileRouteScreen.SavedPosts.route) }
-        )
     }
 }
 
@@ -264,7 +302,13 @@ fun ProfileStatItem(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = count.toString(), fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
-        Text(text = label, fontSize = 18.sp, fontWeight = FontWeight.Normal)
+        Text(
+            text = count.toString(), fontSize = TextDim.titleTextSize, fontFamily = FontDim.Bold,
+            color = com.example.friendzone.ui.theme.White
+        )
+        Text(
+            text = label, fontSize = TextDim.secondaryTextSize, fontFamily = FontDim.Normal,
+            color = com.example.friendzone.ui.theme.White
+        )
     }
 }

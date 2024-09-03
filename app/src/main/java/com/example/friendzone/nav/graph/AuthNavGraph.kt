@@ -4,8 +4,8 @@ import androidx.navigation.*
 import androidx.navigation.compose.composable
 import com.example.friendzone.nav.routes.AuthRouteScreen
 import com.example.friendzone.nav.routes.Graph
-import com.example.friendzone.presentation.screens.auth.Login
-import com.example.friendzone.presentation.screens.auth.Register
+import com.example.friendzone.presentation.screens.auth.LoginScreen
+import com.example.friendzone.presentation.screens.auth.RegisterScreen
 
 fun NavGraphBuilder.authNavGraph(rootNavController: NavHostController) {
     navigation(
@@ -15,13 +15,13 @@ fun NavGraphBuilder.authNavGraph(rootNavController: NavHostController) {
         composable(
             route = AuthRouteScreen.Login.route
         ) {
-            Login(navController = rootNavController)
+            LoginScreen(navController = rootNavController)
         }
 
         composable(
             route = AuthRouteScreen.Register.route
         ) {
-            Register(navController = rootNavController)
+            RegisterScreen(navController = rootNavController)
         }
     }
 }

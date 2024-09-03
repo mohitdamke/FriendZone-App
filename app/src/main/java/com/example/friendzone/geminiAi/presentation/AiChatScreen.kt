@@ -48,13 +48,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,13 +67,9 @@ import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.geminiAi.domain.ChatUiEvent
 import com.example.friendzone.geminiAi.viewmodel.AiChatViewModel
-import com.example.friendzone.presentation.screens.chat.ChatOutlineText
-import com.example.friendzone.ui.theme.Blue40
-import com.example.friendzone.ui.theme.Blue80
+import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.LightGray
-import com.example.friendzone.ui.theme.PurpleGrey80
-import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.ui.theme.brushAddPost
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,7 +122,7 @@ fun AiChatScreen(
                 ),
                 title = {
                     Text(
-                        text = "Message",
+                        text = "AI CHAT",
                         maxLines = 1,
                         letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
                         overflow = TextOverflow.Visible,

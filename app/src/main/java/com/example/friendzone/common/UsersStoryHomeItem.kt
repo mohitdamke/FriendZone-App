@@ -17,15 +17,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
-import com.example.friendzone.ui.theme.Blue40
-import com.example.friendzone.ui.theme.PurpleGrey80
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.ui.theme.brushAddPost
 

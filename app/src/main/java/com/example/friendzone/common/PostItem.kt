@@ -67,6 +67,7 @@ import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.MainRouteScreen
+import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlin.math.absoluteValue
@@ -122,12 +123,12 @@ fun PostItem(
             isLiked = it.likes.containsKey(currentUserId)
         }
     }
-    Spacer(modifier = modifier.padding(top = 4.dp))
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(6.dp)
+            .background(DarkBlack)
+            .padding(16.dp)
     ) {
         Row(
             modifier = modifier
@@ -345,7 +346,6 @@ fun PostItem(
             Spacer(modifier = modifier.padding(start = 4.dp))
         }
     }
-    Spacer(modifier = modifier.padding(top = 4.dp))
     Divider(modifier = modifier.height(1.dp), color = Gray)
 }
 

@@ -15,7 +15,7 @@ fun RootNavGraph() {
     NavHost(
         navController = rootNavController,
         route = Graph.RootGraph,
-        startDestination = Graph.MainScreenGraph
+        startDestination = Graph.AuthGraph
     ) {
         splashNavGraph(rootNavController = rootNavController)
 
