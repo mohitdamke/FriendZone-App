@@ -40,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -80,6 +81,7 @@ import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.SocialPink
+import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.viewmodel.auth.SignUpViewModel
 import kotlinx.coroutines.launch
 
@@ -221,7 +223,7 @@ fun RegisterScreen(
                             .padding(20.dp),
                     ) {
 
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
 
                         Text(
                             text = "Full name",
@@ -241,7 +243,7 @@ fun RegisterScreen(
                             )
                         )
 
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
 
                         Text(
                             text = "Username",
@@ -261,7 +263,7 @@ fun RegisterScreen(
                             )
                         )
 
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
 
                         Text(
                             text = "Bio",
@@ -281,7 +283,7 @@ fun RegisterScreen(
                             )
                         )
 
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
 
                         Text(
                             text = "Email",
@@ -300,7 +302,7 @@ fun RegisterScreen(
                             )
                         )
 
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
 
                         Text(
                             text = "Password",
@@ -316,7 +318,7 @@ fun RegisterScreen(
                         )
 
                         Spacer(modifier = Modifier.padding(top = 50.dp))
-                        Button(
+                        TextButton(
                             onClick = {
                                 if (name.isEmpty() || username.isEmpty() || bio.isEmpty() || email.isEmpty() || password.isEmpty() || imageUri == null) {
                                     Toast.makeText(
@@ -325,7 +327,7 @@ fun RegisterScreen(
                                         Toast.LENGTH_SHORT
                                     )
                                         .show()
-                                    return@Button
+                                    return@TextButton
                                 } else {
                                     viewModel.registerUser(
                                         email = email,
@@ -339,21 +341,20 @@ fun RegisterScreen(
                                 }
 
 
-                            }, modifier = Modifier.fillMaxWidth(), colors = ButtonColors(
-                                contentColor = White,
-                                containerColor = SocialPink,
-                                disabledContentColor = Color.Gray,
-                                disabledContainerColor = SocialPink
-                            ),
+                            }, modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(CircleShape)
+                                .background(brushAddPost),
                             shape = RoundedCornerShape(10.dp)
                         ) {
                             Text(
-                                text = "Sign up", fontSize = 16.sp, color = White,
-                                fontFamily = FontDim.Normal,
-                                modifier = modifier.padding(10.dp)
+                                text = "Sign up",
+                                fontSize = TextDim.titleTextSize,
+                                fontFamily = FontDim.Bold,
+                                color = com.example.friendzone.ui.theme.White
                             )
                         }
-                        Spacer(modifier = Modifier.padding(top = 30.dp))
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
                         if (state.value?.isLoading == true) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),

@@ -112,16 +112,16 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
                 }
             }
         }) { paddingValues ->
-
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(DarkBlack)
+                .padding(paddingValues)
+                .padding(10.dp)
+        ) {
         LazyColumn(modifier = modifier.fillMaxSize()) {
             item {
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .background(DarkBlack)
-                        .padding(paddingValues)
-                        .padding(10.dp)
-                ) {
+
                     ChatOutlineText(
                         value = searchChat,
                         onValueChange = { searchChat = it },

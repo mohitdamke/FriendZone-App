@@ -359,7 +359,6 @@ private fun ChatUserOutlineText(
                         modifier = modifier
                             .size(30.dp)
                             .align(Alignment.Center)
-                            .rotate(270f)
                             .clickable {
                                 onSendClick()
                             }, tint = White

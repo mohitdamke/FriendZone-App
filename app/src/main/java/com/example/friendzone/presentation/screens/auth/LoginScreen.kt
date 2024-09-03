@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -27,7 +29,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Gray
@@ -77,173 +82,172 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    Box(
-        modifier = modifier
-            .background(DarkBlack)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Scaffold { paddingValues ->
         Column(
             modifier = modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .background(DarkBlack)
+                .padding(paddingValues)
+                .padding(10.dp),
         ) {
-            Spacer(modifier = Modifier.padding(top = 70.dp))
-            Text(
-                text = "FriendZone",
-                fontSize = 34.sp,
-                color = White,
-                fontFamily = FontDim.Bold,
-            )
-            Text(
-                text = "Make Social Network",
-                fontSize = 16.sp,
-                color = White,
-                fontFamily = FontDim.Normal
-            )
-            Spacer(modifier = Modifier.padding(top = 60.dp))
-
-            Column(modifier = modifier.padding(20.dp)) {
-
-                Column(
-                    modifier = modifier.fillMaxSize ()
-                        .padding(top = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                    Text(
-                        text = "Log in",
-                        fontSize = 30.sp,
-                        fontFamily = FontDim.Bold,
-                        color = White
-                    )
-                }
-                Spacer(modifier = Modifier.padding(top = 30.dp))
-
-                Text(
-                    text = "Email",
-                    fontSize = TextDim.titleTextSize,
-                    fontFamily = FontDim.Bold,
-                    color = White,
-                    modifier = modifier.padding(start = 8.dp)
-                )
-                OutlineText(
-                    value = email, onValueChange = { email = it },
-                    label = "Email",
-                    icons = Icons.Default.Email
-                )
-
-                Spacer(modifier = Modifier.padding(top = 30.dp))
-
-                Text(
-                    text = "Password",
-                    fontSize = TextDim.titleTextSize,
-                    fontFamily = FontDim.Bold,
-                    color = White,
-                    modifier = modifier.padding(start = 8.dp)
-                )
-                PassOutlineText(
-                    value = password, onValueChange = { password = it },
-                    label = "Password",
-                    icons = Icons.Default.Lock
-                )
-
-                Spacer(modifier = Modifier.padding(top = 40.dp))
-
-                Button(
-                    onClick = {
-                        if (email.isEmpty() || password.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                "Please fill all fields",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                            return@Button
-                        } else {
-                            viewModel.loginUser(
-                                email = email,
-                                password = password,
-                                context = context
-                            )
-                        }
-                    }, modifier = modifier.fillMaxWidth(), colors = ButtonColors(
-                        contentColor = White,
-                        containerColor = SocialPink,
-                        disabledContentColor = SocialPink,
-                        disabledContainerColor = SocialPink
-                    ),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(
-                        text = "Log in",
-                        fontSize = TextDim.titleTextSize,
-                        fontFamily = FontDim.Bold,
-                        color = White,
-                        modifier = modifier.padding(10.dp)
-                    )
-                }
-
-                if (state.value?.isLoading == true) {
+            LazyColumn {
+                item {
+                    Spacer(modifier = Modifier.padding(top = 70.dp))
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        CircularProgressIndicator()
+
+                        Text(
+                            text = "FriendZone",
+                            fontSize = 34.sp,
+                            color = White,
+                            fontFamily = FontDim.Bold,
+                        )
+                        Text(
+                            text = "Make Social Network",
+                            fontSize = 16.sp,
+                            color = White,
+                            fontFamily = FontDim.Normal
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 60.dp))
+
+                        Text(
+                            text = "Log in",
+                            fontSize = 30.sp,
+                            fontFamily = FontDim.Bold,
+                            color = White
+                        )
                     }
-                }
+                    Spacer(modifier = Modifier.padding(top = 16.dp))
 
-                Spacer(modifier = Modifier.padding(top = 100.dp))
-
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
                     Text(
-                        text = "Don't have an account?", fontSize = TextDim.titleTextSize,
-                        fontFamily = FontDim.Bold,
-                        color = White,
-                    )
-                    Spacer(modifier = Modifier.padding(start = 4.dp))
-                    Text(
-                        text = "Sign up",
+                        text = "Email",
                         fontSize = TextDim.titleTextSize,
                         fontFamily = FontDim.Bold,
-                        color = SocialPink,
-                        modifier = modifier
-                            .padding(start = 4.dp)
-                            .clickable {
-                                navController.navigate(AuthRouteScreen.Register.route)
-                            },
+                        color = White,
+                        modifier = modifier.padding(start = 8.dp)
+                    )
+                    OutlineText(
+                        value = email, onValueChange = { email = it },
+                        label = "Email",
+                        icons = Icons.Default.Email
                     )
 
-                    Spacer(modifier = Modifier.padding(top = 30.dp))
-                }
-            }
-            LaunchedEffect(key1 = state.value?.isSuccess) {
-                scope.launch {
-                    if (state.value?.isSuccess?.isNotEmpty() == true) {
-                        val success = state.value?.isSuccess
-                        Toast.makeText(
-                            context,
-                            "You have successfully login",
-                            Toast.LENGTH_SHORT
+                    Spacer(modifier = Modifier.padding(top = 16.dp))
+
+                    Text(
+                        text = "Password",
+                        fontSize = TextDim.titleTextSize,
+                        fontFamily = FontDim.Bold,
+                        color = White,
+                        modifier = modifier.padding(start = 8.dp)
+                    )
+                    PassOutlineText(
+                        value = password, onValueChange = { password = it },
+                        label = "Password",
+                        icons = Icons.Default.Lock
+                    )
+
+                    Spacer(modifier = Modifier.padding(top = 40.dp))
+
+                    TextButton(
+                        onClick = {
+                            if (email.isEmpty() || password.isEmpty()) {
+                                Toast.makeText(
+                                    context,
+                                    "Please fill all fields",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                                return@TextButton
+                            } else {
+                                viewModel.loginUser(
+                                    email = email,
+                                    password = password,
+                                    context = context
+                                )
+                            }
+                        }, modifier = modifier
+                            .fillMaxWidth()
+                            .clip(CircleShape)
+                            .background(brushAddPost),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "Log in",
+                            fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = com.example.friendzone.ui.theme.White
                         )
-                            .show()
-                        navController.navigate(Graph.MainScreenGraph) {
-                            popUpTo(Graph.AuthGraph) {
-                                inclusive = true
+                    }
+
+                    if (state.value?.isLoading == true) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.padding(top = 100.dp))
+
+                    Row(
+                        modifier = modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Don't have an account?", fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = White,
+                        )
+                        Spacer(modifier = Modifier.padding(start = 4.dp))
+                        Text(
+                            text = "Sign up",
+                            fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = SocialPink,
+                            modifier = modifier
+                                .padding(start = 4.dp)
+                                .clickable {
+                                    navController.navigate(AuthRouteScreen.Register.route)
+                                },
+                        )
+
+                        Spacer(modifier = Modifier.padding(top = 16.dp))
+                    }
+
+                    LaunchedEffect(key1 = state.value?.isSuccess) {
+                        scope.launch {
+                            if (state.value?.isSuccess?.isNotEmpty() == true) {
+                                val success = state.value?.isSuccess
+                                Toast.makeText(
+                                    context,
+                                    "You have successfully login",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                                navController.navigate(Graph.MainScreenGraph) {
+                                    popUpTo(Graph.AuthGraph) {
+                                        inclusive = true
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
 
-            LaunchedEffect(key1 = state.value?.isError) {
-                scope.launch {
-                    if (state.value?.isError?.isNotEmpty() == true) {
-                        val error = state.value?.isError
-                        Toast.makeText(context, "$error", Toast.LENGTH_SHORT).show()
+                    LaunchedEffect(key1 = state.value?.isError) {
+                        scope.launch {
+                            if (state.value?.isError?.isNotEmpty() == true) {
+                                val error = state.value?.isError
+                                Toast.makeText(context, "$error", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 }
             }
@@ -346,7 +350,7 @@ private fun PassOutlineText(
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Done
         ),
         modifier = modifier
             .fillMaxWidth()
