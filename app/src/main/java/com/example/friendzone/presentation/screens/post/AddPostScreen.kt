@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -55,13 +58,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.friendzone.dimension.FontDim
+import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.ui.theme.Blue40
+import com.example.friendzone.ui.theme.DarkBlack
+import com.example.friendzone.ui.theme.LightGray
+import com.example.friendzone.ui.theme.White
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.post.PostViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -86,7 +95,8 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
         if (isPosted) {
             post = ""
             imageUris = emptyList()
-            Toast.makeText(context, "Post has been successfully uploaded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Post has been successfully uploaded", Toast.LENGTH_SHORT)
+                .show()
             navController.navigateUp()
         }
     }
@@ -97,30 +107,36 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     }
 
-    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-        imageUris = uris ?: emptyList()
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-        if (isGranted) {
-            imageLauncher.launch("image/*")
-        } else {
-            Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+    val imageLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+            imageUris = uris ?: emptyList()
         }
-    }
+
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                imageLauncher.launch("image/*")
+            } else {
+                Toast.makeText(context, "Permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = DarkBlack,
+                    titleContentColor = White,
+                    actionIconContentColor = White,
+                    navigationIconContentColor = White,
+                    scrolledContainerColor = DarkBlack,
+                ),
                 title = {
                     Text(
-                        "Make a Post",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        color = Blue40,
-                        modifier = modifier.padding(start = 100.dp)
+                        "CREATE POST", maxLines = 1,
+                        letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
+                        overflow = TextOverflow.Visible,
+                        fontFamily = FontDim.Bold,
                     )
                 },
                 actions = {
@@ -161,12 +177,14 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .background(DarkBlack)
                 .padding(padding)
+                .padding(10.dp)
+
         ) {
             Row(
                 modifier = modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { /* TODO: Handle profile image click */ }) {
@@ -181,27 +199,42 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = SharedPref.getUserName(context),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal
+                    text = SharedPref.getName(context), fontSize = TextDim.titleTextSize,
+                    fontFamily = FontDim.Bold,
+                    color = White
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.padding(top = 10.dp))
 
             OutlinedTextField(
                 value = post,
                 onValueChange = { post = it },
-                label = { Text("Enter Title") },
+                placeholder = {
+                    Text(
+                        text = "Type your Title",
+                        fontSize = TextDim.secondaryTextSize,
+                        fontFamily = FontDim.Medium,
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Go
                 ),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 20.dp)
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    unfocusedPlaceholderColor = Color.Gray,
+                    focusedPlaceholderColor = Color.Gray,
+                    focusedBorderColor = Color.Gray,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedTextColor = White,
+                    unfocusedTextColor = White
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(100.dp),
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.AddAPhoto,
@@ -221,19 +254,20 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
                                     permissionLauncher.launch(permissionToRequest)
                                     Log.i("TAG", "Image permission is not granted")
                                 }
-                            }
+                            }, tint = LightGray
+
                     )
                 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.padding(top = 10.dp))
 
             // Clear Button
             if (imageUris.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = "Clear Images",
-                    tint = Color.Black,
+                    tint = Color.White,
                     modifier = Modifier
                         .size(50.dp)
                         .clickable {
@@ -257,7 +291,6 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
                             .clip(RectangleShape)
                             .clickable {
                                 imageUris = imageUris.filter { it != uri }
-                                Log.i("TAG", "Image removed: $uri")
                             }
                     )
                 }

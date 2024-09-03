@@ -126,7 +126,7 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
                 ),
                 title = {
                     Text(
-                        "Add Story", maxLines = 1,
+                        "STORY", maxLines = 1,
                         letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
                         overflow = TextOverflow.Visible,
                         fontFamily = FontDim.Bold,
@@ -169,7 +169,7 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
 
                     ) {
                         Text(
-                            text = "Publish",
+                            text = "PUBLISH",
                             fontSize = TextDim.titleTextSize,
                             fontFamily = FontDim.Bold,
                             color = White
