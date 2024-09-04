@@ -25,15 +25,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Person2
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,7 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,13 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -79,7 +72,6 @@ import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.AuthRouteScreen
 import com.example.friendzone.nav.routes.Graph
 import com.example.friendzone.ui.theme.DarkBlack
-import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.SocialPink
 import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.viewmodel.auth.SignUpViewModel
@@ -276,7 +268,7 @@ fun RegisterScreen(
                         OutlineText(
                             value = bio, onValueChange = { bio = it },
                             label = "Bio",
-                            icons = Icons.Default.AddComment,
+                            icons = Icons.Default.Message,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Next
@@ -445,7 +437,7 @@ private fun OutlineText(
                 modifier = Modifier.padding(10.dp), tint = White
             )
         },
-        label = {
+        placeholder = {
             Text(
                 text = "Enter your $label", fontSize = TextDim.secondaryTextSize,
                 fontFamily = FontDim.Medium,
@@ -494,7 +486,7 @@ private fun PassOutlineText(
                 modifier = Modifier.padding(10.dp), tint = White
             )
         },
-        label = {
+        placeholder = {
             Text(
                 text = "Enter your $label", fontSize = TextDim.secondaryTextSize,
                 fontFamily = FontDim.Medium,

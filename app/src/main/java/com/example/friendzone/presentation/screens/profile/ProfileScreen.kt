@@ -151,29 +151,34 @@ fun ProfileScreen(
             )
         },
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
+        Column(
+            modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .background(DarkBlack)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
-                ProfileHeader(
-                    modifier = modifier,
-                    user = user,
-                    navController = navController,
-                    postCount = postsToDisplay.size,
-                    followerCount = followerList.size,
-                    followingCount = followingList.size
-                )
-            }
 
-            items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
-                PostItem(
-                    post = post,
-                    users = user,
-                    navController = navController,
-                    homeViewModel = homeViewModel
-                )
+            LazyColumn {
+                item {
+                    ProfileHeader(
+                        modifier = modifier,
+                        user = user,
+                        navController = navController,
+                        postCount = postsToDisplay.size,
+                        followerCount = followerList.size,
+                        followingCount = followingList.size
+                    )
+                }
+
+                items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
+                    PostItem(
+                        post = post,
+                        users = user,
+                        navController = navController,
+                        homeViewModel = homeViewModel
+                    )
+                }
             }
         }
     }
@@ -261,7 +266,10 @@ fun ProfileActions(
                 .padding(10.dp),
             elevation = ButtonDefaults.buttonElevation(10.dp),
             border = ButtonDefaults.outlinedButtonBorder,
-            colors = ButtonDefaults.buttonColors(containerColor = DarkBlack, contentColor = White)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DarkBlack,
+                contentColor = White
+            )
         ) {
             Text(
                 text = "Edit Profile",
@@ -303,7 +311,9 @@ fun ProfileStatItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = count.toString(), fontSize = TextDim.titleTextSize, fontFamily = FontDim.Bold,
+            text = count.toString(),
+            fontSize = TextDim.titleTextSize,
+            fontFamily = FontDim.Bold,
             color = com.example.friendzone.ui.theme.White
         )
         Text(

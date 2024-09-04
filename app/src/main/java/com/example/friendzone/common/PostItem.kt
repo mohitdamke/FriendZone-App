@@ -53,6 +53,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -203,11 +204,14 @@ fun PostItem(
         if (showReadMoreButtonState) {
             Text(
                 text = if (expandedState) "Read Less" else "Read More",
-                color = Color.Gray,
-
-                modifier = Modifier.clickable {
-                    expandedState = !expandedState
-                },
+                color = Gray,
+                textAlign = TextAlign.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    .clickable {
+                        expandedState = !expandedState
+                    },
 
                 style = MaterialTheme.typography.bodySmall
 

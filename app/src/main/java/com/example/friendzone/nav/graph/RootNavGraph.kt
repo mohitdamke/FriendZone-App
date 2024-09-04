@@ -15,7 +15,7 @@ fun RootNavGraph() {
     NavHost(
         navController = rootNavController,
         route = Graph.RootGraph,
-        startDestination = Graph.MainScreenGraph
+        startDestination = Graph.SplashGraph
     ) {
         splashNavGraph(rootNavController = rootNavController)
 
@@ -27,7 +27,6 @@ fun RootNavGraph() {
 
         homeNavGraph(rootNavController = rootNavController)
         searchNavGraph(rootNavController = rootNavController)
-//        addPostNavGraph(rootNavController = rootNavController)
         chatNavGraph(rootNavController = rootNavController)
         profileNavGraph(rootNavController = rootNavController, homeNavController = homeNavController)
     }
