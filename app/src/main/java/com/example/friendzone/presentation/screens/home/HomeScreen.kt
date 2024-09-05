@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -37,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.common.PostItem
 import com.example.friendzone.common.UsersStoryHomeItem
@@ -71,8 +70,8 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
-    homeNavController: NavController
+    rootNavController: NavController,
+    homeNavController: NavHostController
 ) {
 
     val homeViewModel: HomeViewModel = viewModel()
@@ -145,7 +144,7 @@ fun HomeScreen(
                 LazyColumn {
                     item {
                         StoryItem(
-                            navController = navController,
+                            rootNavController = rootNavController,
                             usersList = usersList,
                             storyAndUsers = storyAndUsers,
                             currentUserId = currentUserId,
@@ -159,7 +158,7 @@ fun HomeScreen(
                         PostItem(
                             post = pairs.first,
                             users = pairs.second,
-                            navController = navController,
+                            rootNavController = rootNavController,
                             navController2 = homeNavController,
                             homeViewModel = homeViewModel
                         )
@@ -174,7 +173,7 @@ fun HomeScreen(
 @Composable
 fun StoryItem(
     modifier: Modifier = Modifier,
-    navController: NavController,
+    rootNavController: NavController,
     usersList: List<UserModel>?,
     storyAndUsers: List<Pair<StoryModel, UserModel>>?,
     currentUserId: String,
@@ -199,7 +198,7 @@ fun StoryItem(
                                 oldValue = "{all_story}", newValue = currentUserId
                             )
                         }
-                        navController.navigate(route)
+                        rootNavController.navigate(route)
                     }
                 )
             }
@@ -210,7 +209,7 @@ fun StoryItem(
                 items(usersList.filter { it.uid != FirebaseAuth.getInstance().currentUser?.uid }) { user ->
                     UsersStoryHomeItem(
                         users = user,
-                        navHostController = navController
+                        navHostController = rootNavController
                     )
                 }
             }

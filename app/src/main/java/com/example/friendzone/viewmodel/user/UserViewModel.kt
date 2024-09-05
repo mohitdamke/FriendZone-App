@@ -15,6 +15,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -163,7 +164,20 @@ class UserViewModel : ViewModel() {
         })
     }
 
+    fun fetchUserPosts(currentUserId: String) {
+        FirebaseFirestore.getInstance()
+            .collection("posts")
+            .whereEqualTo("userId", currentUserId)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null || snapshot == null) {
+                    // Handle error
+                    return@addSnapshotListener
+                }
 
+                val posts = snapshot.documents.mapNotNull { it.toObject(PostModel::class.java) }
+                _posts.value = posts
+            }
+    }
     fun fetchPosts(uid: String) {
         if (postsFetched) return
         postRef.orderByChild("userId").equalTo(uid)

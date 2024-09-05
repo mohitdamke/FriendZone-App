@@ -106,8 +106,7 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
                         contentDescription = "Ai",
                         modifier = modifier
                             .size(30.dp)
-                            .align(Alignment.Center)
-                        ,tint = White
+                            .align(Alignment.Center), tint = White
                     )
                 }
             }
@@ -119,32 +118,31 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
                 .padding(paddingValues)
                 .padding(10.dp)
         ) {
-        LazyColumn(modifier = modifier.fillMaxSize()) {
-            item {
 
-                    ChatOutlineText(
-                        value = searchChat,
-                        onValueChange = { searchChat = it },
-                        label = "Chat",
-                        icons = Icons.Default.Search
-                    )
-                    if (usersList != null && usersList!!.isNotEmpty()) {
-                        val filterItems =
-                            usersList!!.filter { it.name.contains(searchChat, ignoreCase = true) }
+            ChatOutlineText(
+                value = searchChat,
+                onValueChange = { searchChat = it },
+                label = "Chat",
+                icons = Icons.Default.Search
+            )
+            LazyColumn(modifier = modifier) {
+                if (usersList != null && usersList!!.isNotEmpty()) {
+                    val filterItems =
+                        usersList!!.filter { it.name.contains(searchChat, ignoreCase = true) }
 
-                        this@LazyColumn.items(filterItems) { pairs ->
-                            ChatUserItem(
-                                users = pairs,
-                                navController = navController,
-                            )
-                        }
+                    items(filterItems) { pairs ->
+                        ChatUserItem(
+                            users = pairs,
+                            navController = navController,
+                        )
                     }
                 }
             }
-
         }
+
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

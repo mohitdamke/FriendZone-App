@@ -1,7 +1,6 @@
 package com.example.friendzone.nav.graph
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +25,7 @@ fun MainNavGraph(
         startDestination = MainRouteScreen.Home.route,
     ) {
         composable(route = MainRouteScreen.Home.route){
-            HomeScreen(navController = rootNavController, homeNavController = homeNavController)
+            HomeScreen(rootNavController = rootNavController, homeNavController = homeNavController)
         }
 
         composable(route = MainRouteScreen.Search.route){

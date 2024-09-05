@@ -33,7 +33,8 @@ class HomeViewModel : ViewModel() {
     init {
         fetchPostsAndUsers()
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        currentUserId?.let { fetchSavedPosts(it) }
+        currentUserId?.let {
+            fetchSavedPosts(it) }
 
     }
 
@@ -64,6 +65,23 @@ class HomeViewModel : ViewModel() {
         })
     }
 
+    fun deletePost(postId: String) {
+        val postRef = db.getReference("posts").child(postId)
+        viewModelScope.launch {
+            postRef.removeValue().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Post deleted successfully, fetch the updated posts
+                    fetchPostsAndUsers()
+                    // Optionally, show a toast or notify the user about the success
+                } else {
+                    // Handle the error
+                    task.exception?.let {
+                        // Log or handle the error appropriately
+                    }
+                }
+            }
+        }
+    }
 
     private fun fetchUserFromPost(post: PostModel, onResult: (UserModel) -> Unit) {
         db.getReference("users").child(post.userId)
@@ -212,7 +230,7 @@ class HomeViewModel : ViewModel() {
         return savedPostLiveData
     }
 
-    private fun fetchPostByIds(postIds: List<String>, onResult: (List<PostModel>) -> Unit) {
+     fun fetchPostByIds(postIds: List<String>, onResult: (List<PostModel>) -> Unit) {
         db.getReference("posts").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 viewModelScope.launch {

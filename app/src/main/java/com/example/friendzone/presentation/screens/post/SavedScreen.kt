@@ -95,7 +95,7 @@ fun SavedScreen(
                             PostItem(
                                 post = post,
                                 users = it,
-                                navController = navController,
+                                rootNavController = navController,
                                 homeViewModel = homeViewModel,
                                 navController2 = homeNavController
                             )

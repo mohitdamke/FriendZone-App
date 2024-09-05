@@ -84,6 +84,8 @@ fun OtherUsers(
 
     val postsToDisplay =
         posts!!.filter { it.userId == uid }
+            .sortedByDescending { it.timeStamp.toLong() }
+
 
     LaunchedEffect(key1 = uid) {
         userViewModel.fetchPosts(uid)
@@ -271,7 +273,7 @@ fun OtherUsers(
                         PostItem(
                             post = post,
                             users = users!!,
-                            navController = navController,
+                            rootNavController = navController,
                             homeViewModel = homeViewModel
                         )
                     }

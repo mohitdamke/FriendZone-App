@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -51,12 +52,9 @@ import com.example.friendzone.common.PostItem
 import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
-import com.example.friendzone.nav.routes.AuthRouteScreen
-import com.example.friendzone.nav.routes.MainRouteScreen
 import com.example.friendzone.nav.routes.ProfileRouteScreen
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.util.SharedPref
-import com.example.friendzone.viewmodel.auth.AuthViewModel
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -68,8 +66,6 @@ fun ProfileScreen(
     navController: NavController,
     context: Context = LocalContext.current,
 ) {
-    val authViewModel: AuthViewModel = viewModel()
-    val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
     val homeViewModel: HomeViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
 
@@ -81,26 +77,14 @@ fun ProfileScreen(
 
     LaunchedEffect(Unit) {
         userViewModel.fetchPosts(currentUserId)
+        userViewModel.fetchStory(currentUserId)
+        userViewModel.fetchUsers(currentUserId)
         userViewModel.getFollowers(currentUserId)
         userViewModel.getFollowing(currentUserId)
-        homeViewModel.fetchSavedPost(currentUserId)
     }
-
-
-    val postsToDisplay = posts
-        .filter { it.userId == currentUserId }
+    val postsToDisplay = posts.filter { it.userId == currentUserId  }
         .sortedByDescending { it.timeStamp.toLong() }
 
-    val savedPostsToDisplay = postsToDisplay.filter { savedThreadIds.contains(it.userId) }
-    val unsavedPostsToDisplay = postsToDisplay.filter { !savedThreadIds.contains(it.userId) }
-
-    LaunchedEffect(currentUserId) {
-        if (currentUserId.isEmpty()) {
-            navController.navigate(AuthRouteScreen.Login.route) {
-                popUpTo(MainRouteScreen.Profile.route) { inclusive = true }
-            }
-        }
-    }
 
     val user = UserModel(
         email = SharedPref.getEmail(context),
@@ -171,11 +155,11 @@ fun ProfileScreen(
                     )
                 }
 
-                items(savedPostsToDisplay + unsavedPostsToDisplay) { post ->
+                items(postsToDisplay) { post ->
                     PostItem(
                         post = post,
                         users = user,
-                        navController = navController,
+                        rootNavController = navController,
                         homeViewModel = homeViewModel
                     )
                 }
@@ -242,9 +226,9 @@ fun ProfileImage(
             modifier = Modifier
                 .clickable { navController.navigate(ProfileRouteScreen.AddStory.route) }
                 .clip(CircleShape)
-                .size(34.dp)
+                .size(30.dp)
                 .align(Alignment.BottomEnd),
-            tint = Black
+            tint = LightGray
         )
     }
 }
