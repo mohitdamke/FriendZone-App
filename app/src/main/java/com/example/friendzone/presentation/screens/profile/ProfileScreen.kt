@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,9 +73,13 @@ fun ProfileScreen(
     val posts by userViewModel.posts.observeAsState(emptyList())
     val followerList by userViewModel.followerList.observeAsState(emptyList())
     val followingList by userViewModel.followingList.observeAsState(emptyList())
-    val savedThreadIds by homeViewModel.savedPostIds.observeAsState(emptyList())
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
+    LaunchedEffect(uid) {
+        userViewModel.fetchPosts(uid)
+    }
     LaunchedEffect(Unit) {
         userViewModel.fetchPosts(currentUserId)
         userViewModel.fetchStory(currentUserId)
@@ -82,7 +87,7 @@ fun ProfileScreen(
         userViewModel.getFollowers(currentUserId)
         userViewModel.getFollowing(currentUserId)
     }
-    val postsToDisplay = posts.filter { it.userId == currentUserId  }
+    val postsToDisplay = posts.filter { it.userId == currentUserId }
         .sortedByDescending { it.timeStamp.toLong() }
 
 
@@ -99,9 +104,9 @@ fun ProfileScreen(
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = DarkBlack,
-                    titleContentColor = com.example.friendzone.ui.theme.White,
-                    actionIconContentColor = com.example.friendzone.ui.theme.White,
-                    navigationIconContentColor = com.example.friendzone.ui.theme.White,
+                    titleContentColor = White,
+                    actionIconContentColor = White,
+                    navigationIconContentColor = White,
                     scrolledContainerColor = DarkBlack,
                 ),
                 title = {
@@ -130,7 +135,7 @@ fun ProfileScreen(
                             .clickable { navController.navigate(ProfileRouteScreen.Settings.route) },
                         tint = White
                     )
-                }
+                }, scrollBehavior = scrollBehavior
 
             )
         },

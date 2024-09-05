@@ -149,9 +149,15 @@ fun PostItem(
                     .size(50.dp)
                     .clickable {
                         if (currentUserId.isNotEmpty() && users.uid == currentUserId)
+                            // Navigate to the profile
                             navController2.navigate(
-                            MainRouteScreen.Profile.route
-                        )
+                                MainRouteScreen.Profile.route
+                            ) {
+                                popUpTo(
+                                    MainRouteScreen.Home.route
+                                )
+                                launchSingleTop = true
+                            }
                         else {
                             rootNavController.navigate(
                                 HomeRouteScreen.OtherProfile.route.replace(
