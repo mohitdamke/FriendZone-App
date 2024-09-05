@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -66,6 +67,7 @@ import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.LightGray
 import com.example.friendzone.ui.theme.White
+import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.post.PostViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -135,33 +137,41 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
                     )
                 },
                 actions = {
-                    IconButton(onClick = {
-                        if (post.isEmpty()) {
-                            Toast.makeText(context, "Enter Title", Toast.LENGTH_SHORT).show()
-                            return@IconButton
-                        }
+                    TextButton(
+                        onClick = {
+                            if (post.isEmpty()) {
+                                Toast.makeText(context, "Enter Title", Toast.LENGTH_SHORT).show()
+                                return@TextButton
+                            }
 
-                        val storeKey = postRef.push().key ?: return@IconButton
+                            val storeKey = postRef.push().key ?: return@TextButton
 
-                        if (imageUris.isEmpty()) {
-                            postViewModel.saveData(
-                                post = post,
-                                userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                                storeKey = storeKey,
-                                images = emptyList()
-                            )
-                        } else {
-                            postViewModel.saveImages(
-                                post = post,
-                                userId = FirebaseAuth.getInstance().currentUser!!.uid,
-                                imageUris = imageUris
-                            )
-                        }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Send,
-                            contentDescription = "Send",
-                            tint = SocialBlue
+                            if (imageUris.isEmpty()) {
+                                postViewModel.saveData(
+                                    post = post,
+                                    userId = FirebaseAuth.getInstance().currentUser!!.uid,
+                                    storeKey = storeKey,
+                                    images = emptyList()
+                                )
+                            } else {
+                                postViewModel.saveImages(
+                                    post = post,
+                                    userId = FirebaseAuth.getInstance().currentUser!!.uid,
+                                    imageUris = imageUris
+                                )
+                            }
+                        },
+                        modifier = modifier
+                            .padding(top = 70.dp, bottom = 70.dp)
+                            .clip(CircleShape)
+                            .background(brushAddPost)
+                    )
+                    {
+                        Text(
+                            text = "POST",
+                            fontSize = TextDim.titleTextSize,
+                            fontFamily = FontDim.Bold,
+                            color = White
                         )
                     }
                 }

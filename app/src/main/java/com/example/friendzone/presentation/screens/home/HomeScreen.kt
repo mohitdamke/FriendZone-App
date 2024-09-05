@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,6 +57,7 @@ import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.ui.theme.DarkBlack
+import com.example.friendzone.ui.theme.SocialPink
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.util.SharedPref
@@ -138,7 +140,7 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(text = "No Users Found", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                    CircularProgressIndicator(color = SocialPink)
                 }
             } else {
                 LazyColumn {

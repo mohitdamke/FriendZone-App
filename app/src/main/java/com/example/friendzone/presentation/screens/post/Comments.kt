@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -85,7 +86,7 @@ fun Comments(
                 ),
                 title = {
                     Text(
-                        text = "Post Comments",
+                        text = "Comments",
                         maxLines = 1,
                         letterSpacing = 1.sp, fontSize = TextDim.titleTextSize,
                         overflow = TextOverflow.Visible,
@@ -120,64 +121,72 @@ fun Comments(
             )
         }) { paddingValues ->
 
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(DarkBlack)
-        ) {
-            item {
                 Column(
                     modifier = modifier
                         .fillMaxSize()
+                        .padding(paddingValues)
+                        .background(DarkBlack)
                         .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    LazyColumn(
+                        modifier = modifier
+                            .fillMaxSize()
 
-                    Text(text = "Comments", fontWeight = FontWeight.Bold)
-
-                    comments.forEach { comment ->
-                        Row(
-                            modifier = modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter(comment.image),
-                                contentDescription = null, modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(44.dp), contentScale = ContentScale.Crop
+                    ) {
+                        items(comments) { comment ->
+                            CommentItem(
+                                modifier = modifier,
+                                comment = comment
                             )
-                            Column(
-                                modifier = modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp),
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Row {
 
-                                    Text(
-                                        text = comment.name,
-                                        fontSize = TextDim.titleTextSize,
-                                        fontFamily = FontDim.Bold,
-                                        color = White
-                                    )
-
-                                }
-                                Text(
-                                    text = comment.text,
-                                    fontSize = TextDim.titleTextSize,
-                                    fontFamily = FontDim.Medium,
-                                    color = White
-                                )
-                            }
-                        }
-
-                    }
                 }
             }
         }
     }
 }
+
+@Composable
+fun CommentItem(
+    modifier: Modifier = Modifier,
+    comment: CommentModel
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = rememberAsyncImagePainter(comment.image),
+            contentDescription = null,
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(44.dp),
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = comment.name,
+                fontSize = TextDim.titleTextSize,
+                fontFamily = FontDim.Bold,
+                color = White
+            )
+            Text(
+                text = comment.text,
+                fontSize = TextDim.titleTextSize,
+                fontFamily = FontDim.Medium,
+                color = White
+            )
+        }
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

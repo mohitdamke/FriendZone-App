@@ -1,6 +1,7 @@
 package com.example.friendzone.presentation.screens.splash
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.friendzone.R
 import com.example.friendzone.nav.routes.Graph
+import com.example.friendzone.ui.theme.brushAddPost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
@@ -25,33 +27,22 @@ fun SplashScreen(
     navController: NavController,
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
+            .background(brushAddPost),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Image(
-            painter = painterResource(id = R.drawable.fz_1),
+            painter = painterResource(id = R.drawable.fz_removebg_preview),
             contentDescription = null,
             modifier = Modifier
-                .size(160.dp)
+                .size(250.dp)
                 .clip(CircleShape)
         )
 
     }
-//        Text(
-//            text = "FZ",
-//            fontSize = 100.sp,
-//            fontWeight = FontWeight.Bold,
-//            fontStyle = FontStyle.Italic ,
-//            color = Blue40
-//        )
-//        Text(text = "FriendZone",
-//            fontSize = 26.sp,
-//            fontWeight = FontWeight.Normal,
-//            fontStyle = FontStyle.Normal ,
-//            color = Blue40, letterSpacing = 10.sp)
-//    }
+
     LaunchedEffect(key1 = true) {
         delay(1000)
 
