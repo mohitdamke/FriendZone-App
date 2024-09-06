@@ -10,18 +10,13 @@ Welcome to our Social Media App project! This application is built using Kotlin 
 https://www.linkedin.com/posts/mohitdamke01_introducing-friendzone-social-media-app-activity-7230172544673153024-oIMc?utm_source=share&utm_medium=member_desktop
 
 
-https://github.com/user-attachments/assets/8c24ee75-3c15-4c3a-9067-c59a8618ce89
-
-
 https://github.com/user-attachments/assets/1431bc99-c980-4714-93ea-5493710c5277
-
-
 
 https://github.com/user-attachments/assets/96a3c302-d5ce-407f-a712-069032647de2
 
-
-
 https://github.com/user-attachments/assets/b344c945-575b-4268-ac67-f38e992c668a
+
+https://github.com/user-attachments/assets/8c24ee75-3c15-4c3a-9067-c59a8618ce89
 
 
 ### Features
