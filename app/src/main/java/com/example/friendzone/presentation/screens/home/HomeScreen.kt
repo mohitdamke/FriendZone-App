@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,7 +62,6 @@ import com.example.friendzone.ui.theme.brushAddPost
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.example.friendzone.viewmodel.search.SearchViewModel
-import com.example.friendzone.viewmodel.story.AddStoryViewModel
 import com.example.friendzone.viewmodel.story.StoryViewModel
 import com.example.friendzone.viewmodel.user.UserViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -78,7 +76,6 @@ fun HomeScreen(
 
     val homeViewModel: HomeViewModel = viewModel()
     val storyViewModel: StoryViewModel = viewModel()
-    val addStoryViewModel: AddStoryViewModel = viewModel()
     val searchViewModel: SearchViewModel = viewModel()
     val usersList by searchViewModel.userList.observeAsState(null)
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""

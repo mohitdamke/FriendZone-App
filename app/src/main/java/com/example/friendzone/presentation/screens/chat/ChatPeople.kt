@@ -36,7 +36,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.layout.ContentScale
@@ -71,7 +70,6 @@ fun ChatPeople(
     uid: String,
     chatViewModel: PeopleChatViewModel = viewModel()
 ) {
-    val chatState by chatViewModel.chatState.collectAsState()
     var currentUserId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
     if (FirebaseAuth.getInstance().currentUser != null) {
         currentUserId = FirebaseAuth.getInstance().currentUser!!.uid

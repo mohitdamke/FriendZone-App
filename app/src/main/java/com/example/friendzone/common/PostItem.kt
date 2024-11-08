@@ -149,7 +149,7 @@ fun PostItem(
                     .size(50.dp)
                     .clickable {
                         if (currentUserId.isNotEmpty() && users.uid == currentUserId)
-                            // Navigate to the profile
+                        // Navigate to the profile
                             navController2.navigate(
                                 MainRouteScreen.Profile.route
                             ) {

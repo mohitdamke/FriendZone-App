@@ -41,34 +41,15 @@ fun DetailStoryItem(
             )
 
             if (story.userId == users.uid && story.userId == currentUser) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = null ,modifier = modifier.clickable {
-                    onDelete()
-                })
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = modifier.clickable {
+                        onDelete()
+                    })
             } else {
                 Unit
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

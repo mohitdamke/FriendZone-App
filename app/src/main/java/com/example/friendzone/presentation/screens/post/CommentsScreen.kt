@@ -11,9 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.friendzone.data.model.CommentModel
-import com.example.friendzone.data.model.UserModel
 import com.example.friendzone.util.SharedPref
 import com.example.friendzone.viewmodel.home.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth

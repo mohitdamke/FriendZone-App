@@ -34,7 +34,8 @@ class HomeViewModel : ViewModel() {
         fetchPostsAndUsers()
         val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         currentUserId?.let {
-            fetchSavedPosts(it) }
+            fetchSavedPosts(it)
+        }
 
     }
 
@@ -230,7 +231,7 @@ class HomeViewModel : ViewModel() {
         return savedPostLiveData
     }
 
-     fun fetchPostByIds(postIds: List<String>, onResult: (List<PostModel>) -> Unit) {
+    fun fetchPostByIds(postIds: List<String>, onResult: (List<PostModel>) -> Unit) {
         db.getReference("posts").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 viewModelScope.launch {

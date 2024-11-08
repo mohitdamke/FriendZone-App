@@ -178,6 +178,7 @@ class UserViewModel : ViewModel() {
                 _posts.value = posts
             }
     }
+
     fun fetchPosts(uid: String) {
         if (postsFetched) return
         postRef.orderByChild("userId").equalTo(uid)

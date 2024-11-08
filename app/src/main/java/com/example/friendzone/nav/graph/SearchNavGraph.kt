@@ -5,9 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.friendzone.nav.routes.Graph
-import com.example.friendzone.nav.routes.HomeRouteScreen
 import com.example.friendzone.nav.routes.SearchRouteScreen
-import com.example.friendzone.presentation.screens.home.DetailScreen
 import com.example.friendzone.presentation.screens.user.OtherUsers
 
 fun NavGraphBuilder.searchNavGraph(rootNavController: NavHostController) {

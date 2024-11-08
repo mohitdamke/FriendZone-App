@@ -10,7 +10,6 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 class PostViewModel() : ViewModel() {
     private val db = FirebaseDatabase.getInstance()

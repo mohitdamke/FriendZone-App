@@ -40,15 +40,5 @@ class PeopleChatViewModel : ViewModel() {
         })
     }
 
-    fun sendMessage(chatId: String) {
-        val messageId = chatRef.child(chatId).child("messages").push().key ?: return
-        val message = Message(
-            senderId = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-            text = currentMessage,
-            timestamp = System.currentTimeMillis()
-        )
-        chatRef.child(chatId).child("messages").child(messageId).setValue(message)
-        currentMessage = ""
-    }
 }
 

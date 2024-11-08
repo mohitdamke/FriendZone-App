@@ -70,13 +70,9 @@ fun OtherUsers(
         currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     }
 
-    val authViewModel: AuthViewModel = viewModel()
-    val firebaseUser by authViewModel.firebaseUser.observeAsState(null)
-
     val userViewModel: UserViewModel = viewModel()
     val homeViewModel: HomeViewModel = viewModel()
     val posts by userViewModel.posts.observeAsState(null)
-    val story by userViewModel.story.observeAsState(null)
     val users by userViewModel.users.observeAsState(null)
     val followerList by userViewModel.followerList.observeAsState(null)
     val followingList by userViewModel.followingList.observeAsState(null)

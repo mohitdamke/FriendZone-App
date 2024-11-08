@@ -3,8 +3,8 @@ package com.example.friendzone.geminiAi.viewmodel
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.threadpractice.geminiAi.data.Chat
-import com.example.threadpractice.geminiAi.data.ChatData
+import com.example.friendzone.geminiAi.data.Chat
+import com.example.friendzone.geminiAi.data.ChatData
 import com.example.friendzone.geminiAi.domain.ChatState
 import com.example.friendzone.geminiAi.domain.ChatUiEvent
 import kotlinx.coroutines.flow.MutableStateFlow

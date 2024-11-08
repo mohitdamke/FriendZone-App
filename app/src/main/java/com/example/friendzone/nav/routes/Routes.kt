@@ -1,13 +1,12 @@
 package com.example.friendzone.nav.routes
 
-object Graph{
+object Graph {
     const val SplashGraph = "splashGraph"
     const val RootGraph = "rootGraph"
     const val AuthGraph = "authGraph"
     const val MainScreenGraph = "mainScreenGraph"
     const val HomeGraph = "homeGraph"
     const val SearchGraph = "searchGraph"
-    const val AddPostGraph = "add_postGraph"
     const val ChatGraph = "chatGraph"
     const val ProfileGraph = "profileGraph"
 
@@ -31,35 +30,32 @@ sealed class MainRouteScreen(val route: String) {
 }
 
 sealed class HomeRouteScreen(val route: String) {
-    object  AddStory : HomeRouteScreen("add_story")
-    object  CommentDetail : HomeRouteScreen("comment_detail/{comment_detail}")
-    object  AllStory : HomeRouteScreen("all_story/{all_story}")
-    object  OtherProfile : HomeRouteScreen("other_profile/{other_profile}")
+    object AddStory : HomeRouteScreen("add_story")
+    object CommentDetail : HomeRouteScreen("comment_detail/{comment_detail}")
+    object AllStory : HomeRouteScreen("all_story/{all_story}")
+    object OtherProfile : HomeRouteScreen("other_profile/{other_profile}")
 }
 
 sealed class SearchRouteScreen(val route: String) {
-    object  OtherProfile : SearchRouteScreen("other_profile/{data}")
+    object OtherProfile : SearchRouteScreen("other_profile/{data}")
 
-}
-
-sealed class AddPostRouteScreen(val route: String) {
 }
 
 sealed class ChatRouteScreen(val route: String) {
 
-    object  OtherProfile : ChatRouteScreen("other_profile/{data}")
+    object OtherProfile : ChatRouteScreen("other_profile/{data}")
 
-    object  OtherProfileChat : ChatRouteScreen("other_profile_chat/{other_chat}")
+    object OtherProfileChat : ChatRouteScreen("other_profile_chat/{other_chat}")
 
-    object  AiChat : ChatRouteScreen("ai_chat")
+    object AiChat : ChatRouteScreen("ai_chat")
 
 }
 
 sealed class ProfileRouteScreen(val route: String) {
 
-    object  EditProfile : ProfileRouteScreen("edit_profile")
+    object EditProfile : ProfileRouteScreen("edit_profile")
 
-    object  Settings : ProfileRouteScreen("settings")
+    object Settings : ProfileRouteScreen("settings")
 
     object SavedPosts : ProfileRouteScreen("saved_posts")
 

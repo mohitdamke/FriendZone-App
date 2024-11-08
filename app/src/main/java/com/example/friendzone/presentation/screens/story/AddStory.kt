@@ -69,12 +69,8 @@ fun AddStory(modifier: Modifier = Modifier, navController: NavController) {
     val addStoryViewModel: AddStoryViewModel = viewModel()
     val isPosted by addStoryViewModel.isPosted.observeAsState(false)
 
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
-
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
 
     LaunchedEffect(isPosted) {

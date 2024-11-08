@@ -31,11 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,7 +55,6 @@ fun SearchScreen(
 ) {
 
     val searchViewModel: SearchViewModel = viewModel()
-    val context = LocalContext.current
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     var search by remember { mutableStateOf("") }
 

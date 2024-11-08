@@ -32,7 +32,7 @@ class AuthRepositoryImpl @Inject constructor(
 
 
     val auth = FirebaseAuth.getInstance()
-  private  val currentUser = auth.currentUser
+    private val currentUser = auth.currentUser
 
     private val db = FirebaseDatabase.getInstance()
     private val userRef = db.getReference("users")
@@ -103,7 +103,7 @@ class AuthRepositoryImpl @Inject constructor(
         userName: String,
         imageUri: Uri,
         context: Context,
-        ): Flow<Resource<AuthResult>> {
+    ): Flow<Resource<AuthResult>> {
         return flow {
             emit(Resource.Loading())
             val result = firebaseAuth.createUserWithEmailAndPassword(email, password).await()

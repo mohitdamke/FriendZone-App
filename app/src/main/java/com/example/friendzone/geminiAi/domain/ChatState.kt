@@ -1,7 +1,7 @@
 package com.example.friendzone.geminiAi.domain
 
 import android.graphics.Bitmap
-import com.example.threadpractice.geminiAi.data.Chat
+import com.example.friendzone.geminiAi.data.Chat
 
 
 data class ChatState(

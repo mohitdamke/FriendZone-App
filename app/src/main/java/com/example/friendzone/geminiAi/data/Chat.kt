@@ -1,4 +1,4 @@
-package com.example.threadpractice.geminiAi.data
+package com.example.friendzone.geminiAi.data
 
 import android.graphics.Bitmap
 

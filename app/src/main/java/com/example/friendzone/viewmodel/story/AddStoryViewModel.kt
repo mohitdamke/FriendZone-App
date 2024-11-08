@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.friendzone.data.model.StoryModel
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -18,11 +17,6 @@ class AddStoryViewModel : ViewModel() {
 
     private val _isPosted = MutableLiveData<Boolean>()
     val isPosted: LiveData<Boolean> = _isPosted
-
-
-
-    private val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
-
 
     fun saveImage(
         userId: String, imageUri: Uri
@@ -43,7 +37,8 @@ class AddStoryViewModel : ViewModel() {
             Log.d("SaveImage", "Failed to upload image: ${exception.message}")
         }
     }
-    fun saveStory(imageUrl: String, storyKey : String, userId: String) {
+
+    fun saveStory(imageUrl: String, storyKey: String, userId: String) {
         // Generate a new key for the story
         val newStoryRef = storyRef.push()
         val storyKey = newStoryRef.key ?: return
@@ -59,7 +54,7 @@ class AddStoryViewModel : ViewModel() {
         // Save the story data under the generated key
         newStoryRef.setValue(storyData).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-            _isPosted.value = true
+                _isPosted.value = true
             } else {
                 _isPosted.value = false
                 Log.d("SaveStory", "Failed to save story: ${task.exception?.message}")

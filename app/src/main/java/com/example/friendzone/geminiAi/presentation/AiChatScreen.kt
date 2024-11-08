@@ -46,7 +46,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -67,9 +66,9 @@ import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
 import com.example.friendzone.geminiAi.domain.ChatUiEvent
 import com.example.friendzone.geminiAi.viewmodel.AiChatViewModel
-import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.LightGray
+import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.ui.theme.brushAddPost
 import kotlinx.coroutines.flow.MutableStateFlow

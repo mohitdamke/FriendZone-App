@@ -7,10 +7,7 @@ import androidx.navigation.navigation
 import com.example.friendzone.geminiAi.presentation.AiChatScreen
 import com.example.friendzone.nav.routes.ChatRouteScreen
 import com.example.friendzone.nav.routes.Graph
-import com.example.friendzone.nav.routes.HomeRouteScreen
-import com.example.friendzone.nav.routes.SearchRouteScreen
 import com.example.friendzone.presentation.screens.chat.ChatPeople
-import com.example.friendzone.presentation.screens.home.DetailScreen
 import com.example.friendzone.presentation.screens.user.OtherUsers
 
 fun NavGraphBuilder.chatNavGraph(rootNavController: NavHostController) {

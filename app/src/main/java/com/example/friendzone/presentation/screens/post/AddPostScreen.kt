@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,7 +41,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,7 +61,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.friendzone.dimension.FontDim
 import com.example.friendzone.dimension.TextDim
-import com.example.friendzone.ui.theme.SocialBlue
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.LightGray
 import com.example.friendzone.ui.theme.White
@@ -83,7 +80,6 @@ fun AddPostScreen(modifier: Modifier = Modifier, navController: NavController) {
     val postRef = db.getReference("posts")
 
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     var post by rememberSaveable { mutableStateOf("") }
     var imageUris by rememberSaveable { mutableStateOf<List<Uri>>(emptyList()) }

@@ -24,13 +24,13 @@ fun NavGraphBuilder.homeNavGraph(rootNavController: NavHostController) {
             route = HomeRouteScreen.AllStory.route
         ) {
             val data = it.arguments!!.getString("all_story")
-            AllStory(navController = rootNavController, uid = data!! )
+            AllStory(navController = rootNavController, uid = data!!)
         }
         composable(
             route = HomeRouteScreen.CommentDetail.route
         ) {
             val data = it.arguments!!.getString("comment_detail")
-            CommentsScreen(navController = rootNavController, postId = data!! )
+            CommentsScreen(navController = rootNavController, postId = data!!)
         }
         composable(
             route = HomeRouteScreen.OtherProfile.route

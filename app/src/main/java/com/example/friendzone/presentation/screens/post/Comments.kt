@@ -41,11 +41,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,7 +57,6 @@ import com.example.friendzone.ui.theme.Black
 import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.ui.theme.brushAddPost
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,24 +118,24 @@ fun Comments(
             )
         }) { paddingValues ->
 
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(DarkBlack)
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    LazyColumn(
-                        modifier = modifier
-                            .fillMaxSize()
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(DarkBlack)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
 
-                    ) {
-                        items(comments) { comment ->
-                            CommentItem(
-                                modifier = modifier,
-                                comment = comment
-                            )
+            ) {
+                items(comments) { comment ->
+                    CommentItem(
+                        modifier = modifier,
+                        comment = comment
+                    )
 
                 }
             }

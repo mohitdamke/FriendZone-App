@@ -63,7 +63,6 @@ import com.example.friendzone.ui.theme.DarkBlack
 import com.example.friendzone.ui.theme.White
 import com.example.friendzone.viewmodel.auth.AuthViewModel
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfile(

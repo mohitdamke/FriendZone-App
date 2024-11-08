@@ -35,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,7 +58,6 @@ import com.google.firebase.auth.FirebaseAuth
 fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     val searchViewModel: SearchViewModel = viewModel()
-    val context = LocalContext.current
     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     var searchChat by remember { mutableStateOf("") }
 
@@ -142,7 +140,6 @@ fun ChatScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -1,8 +1,8 @@
-package com.example.threadpractice.geminiAi.data
+package com.example.friendzone.geminiAi.data
 
 import android.graphics.Bitmap
-import com.example.friendzone.R
 import com.example.friendzone.geminiAi.api.CommonApi
+import com.example.friendzone.geminiAi.data.Chat
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers

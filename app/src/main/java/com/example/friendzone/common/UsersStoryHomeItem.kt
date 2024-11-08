@@ -45,7 +45,7 @@ fun UsersStoryHomeItem(
             modifier = Modifier
                 .size(70.dp)
                 .clip(CircleShape)
-                .border(width = 4.dp, brush =  brushAddPost, shape = CircleShape)
+                .border(width = 4.dp, brush = brushAddPost, shape = CircleShape)
                 .clickable {
                     val routes = HomeRouteScreen.AllStory.route.replace("{all_story}", users.uid)
                     navHostController.navigate(routes)
@@ -64,23 +64,3 @@ fun UsersStoryHomeItem(
         )
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

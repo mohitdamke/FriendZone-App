@@ -59,8 +59,7 @@ fun AllStory(
     uid: String
 ) {
     val userViewModel: UserViewModel = viewModel()
-    val storyViewModel: StoryViewModel = viewModel()
-    val addStoryViewModel: AddStoryViewModel = viewModel()
+
 
     val users by userViewModel.users.observeAsState(null)
     val story by userViewModel.story.observeAsState(emptyList())

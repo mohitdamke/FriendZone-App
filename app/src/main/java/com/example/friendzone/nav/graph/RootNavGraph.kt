@@ -28,6 +28,9 @@ fun RootNavGraph() {
         homeNavGraph(rootNavController = rootNavController)
         searchNavGraph(rootNavController = rootNavController)
         chatNavGraph(rootNavController = rootNavController)
-        profileNavGraph(rootNavController = rootNavController, homeNavController = homeNavController)
+        profileNavGraph(
+            rootNavController = rootNavController,
+            homeNavController = homeNavController
+        )
     }
 }
