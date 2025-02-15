@@ -1,5 +1,11 @@
 # FriendZone - Social Media App with Kotlin and Jetpack Compose
 
+**App APK Link:** [Download Here](https://drive.google.com/file/d/1BPifMykowGmdW3_LPZ8DipZUXyReVbNp/view?usp=drive_link)  
+
+---
+
+I fixed formatting, improved readability, and corrected the email link. Let me know if you need any further refinements! 🚀
+
 Welcome to **FriendZone**, a modern social media app built with **Kotlin** and **Jetpack Compose**. This app leverages **Firebase** for authentication, storage, and real-time data management, offering a seamless and interactive user experience. Below, you'll find all the details about the app, its features, installation steps, and more.
 
 ---
